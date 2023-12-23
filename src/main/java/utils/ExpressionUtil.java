@@ -7,17 +7,34 @@ import pojo.MutableInteger;
 import java.util.Scanner;
 
 public class ExpressionUtil {
+//    TODO:注意必须要用一个变量接住ReadExpr的返回值，会无法正常读取
     /**
      * 以字符序列的形式输入语法正确的前缀表示式并构造表达式E，对外暴露的接口
      *
      * @param E 表达式
-     * @return
+     * @return {@link ExpressionTree}
      */
     public static ExpressionTree ReadExpr(Expression E) {
         Scanner scanner = new Scanner(System.in);
         MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
         System.out.println("Enter an arithmetic expression:");
         String inputString = scanner.nextLine();
+        if (inputString.isEmpty()) {
+            System.out.println("Invalid input");
+            return null;
+        }
+        char[] input = inputString.toCharArray();// 存储输入的字符序列
+        ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E, inputString);
+        ReadExpression(expressionTree, input, index);
+        return expressionTree;
+    }
+
+    public static ExpressionTree testReadExpr(Expression E,String inputString) {
+        MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
+        if (inputString.isEmpty()) {
+            System.out.println("Invalid input");
+            return null;
+        }
         char[] input = inputString.toCharArray();// 存储输入的字符序列
         ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E, inputString);
         ReadExpression(expressionTree, input, index);
@@ -46,7 +63,7 @@ public class ExpressionUtil {
 
         } else if (Character.isAlphabetic(currentChar)) {
             // 变量，构造变量表达式
-            E.value = null; // 变量的初值为null
+            E.value = 0; // 变量的初值为0
             E.setOp(currentChar);
         } else if (isOperator(currentChar)) {
             // 运算符，构造复合表达式
@@ -82,9 +99,9 @@ public class ExpressionUtil {
             } else {
                 // 复合表达式
                 System.out.print("(");
-                WriteExpr(E.left);
+                WriteExpression(E.left);
                 System.out.print(" " + E.op + " ");
-                WriteExpr(E.right);
+                WriteExpression(E.right);
                 System.out.print(")");
             }
         }
@@ -104,7 +121,7 @@ public class ExpressionUtil {
      * @param V 变量
      * @param c 将要赋给变量的值
      */
-    private static boolean Assign(char V, int c, ExpressionTree E) {
+    public static boolean Assign(char V, int c, ExpressionTree E) {
         if (E == null) {
             return false;
         }
@@ -116,4 +133,52 @@ public class ExpressionUtil {
         return false;
     }
 
+    public static Double Value(ExpressionTree E) {
+        if (E == null) {
+            return null;
+        }
+        try {
+            return Evaluate(E, E.getVariableCountMap());
+        } catch (ArithmeticException e) {
+            System.out.println("Error, Divided by zero");
+            return null;
+        }
+    }
+
+
+    /**
+     * 计算表达式E的值的内部方法
+     * @param E 表达式
+     * @return int
+     */
+    private static double Evaluate(Expression E, MyHashMap<String, Integer> variableCountMap) {
+        if (E == null) {
+            return 0;
+        }
+        if (E.op == '#') {
+            // 常量
+            return E.value;
+        } else if (Character.isAlphabetic(E.op)) {
+            // 变量
+            return variableCountMap.get(Character.toString(E.op).toLowerCase());
+        } else {
+            // 复合表达式
+            double leftValue = Evaluate(E.left,variableCountMap);
+            double rightValue = Evaluate(E.right,variableCountMap);
+            switch (E.op) {
+                case '+':
+                    return leftValue + rightValue;
+                case '-':
+                    return leftValue - rightValue;
+                case '*':
+                    return leftValue * rightValue;
+                case '/':
+                    return leftValue / rightValue;
+                case '^':
+                    return (int) Math.pow(leftValue, rightValue);
+                default:
+                    return 0;
+            }
+        }
+    }
 }

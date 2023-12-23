@@ -1,3 +1,7 @@
+import pojo.Expression;
+import pojo.ExpressionTree;
+import utils.ExpressionUtil;
+
 /*题目9  表达式类型的实现（难度系数：1.2）
 [问题描述]
     一个表达式和一棵二叉树之间，存在着自然的对应关系。写一个程序，实现基于二叉树表示的算术表达式Expression的操作。
@@ -16,8 +20,19 @@
 （2）在识别出运算数的同时，要将其字符形式转换成整数形式。
 （3）	用后根遍历的次序对表达式求值。
 （4）	用中缀表示输出表达式E时，适当添加括号，以正确反映运算的优先次序。
+[扩展要求]
+（1）增加求偏导数运算Diff(E,V) –– 求表达式E对变量V的导数。
+（2）在表达式中添加三角函数等初等函数的操作。
+（3）增加常数合并操作MergeConst(E) –– 合并表达式E中所有常数运算。例如，对表达式E=(2+3-a)*(b+3*4)进行合并常数的操作后，求得E=(5-a)*(b+12)。
 
 
 */
 public class Main {
+    public static void main(String[] args) {
+
+        while (true) {
+            Expression E = ExpressionUtil.ReadExpr(new Expression());
+            ExpressionUtil.WriteExpr(E);
+        }
+    }
 }

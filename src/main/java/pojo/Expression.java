@@ -1,6 +1,6 @@
 package pojo;
 
-public class Expression {
+public class Expression{
     /**
      * 操作符
      */

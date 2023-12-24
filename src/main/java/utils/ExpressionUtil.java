@@ -151,6 +151,13 @@ public class ExpressionUtil {
         return false;
     }
 
+
+    /**
+     * 求值表达式E的值的外部接口
+     *
+     * @param E e
+     * @return {@link Double}
+     */
     public static Double Value(ExpressionTree E) {
         if (E == null) {
             return null;
@@ -198,5 +205,16 @@ public class ExpressionUtil {
                     return 0;
             }
         }
+    }
+
+    public static ExpressionTree CompoundExpr(char P, ExpressionTree E1, ExpressionTree E2) {
+        if (E1 == null || E2 == null) {
+            return null;
+        }
+        ExpressionTree expressionTree = new ExpressionTree();
+        expressionTree.setOp(P);
+        expressionTree.left = E1;
+        expressionTree.right = E2;
+        return expressionTree;
     }
 }

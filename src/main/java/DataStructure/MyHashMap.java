@@ -64,7 +64,7 @@ public class MyHashMap<K, V> {
     }
 
     // 向哈希表中添加一个键值对，如果键已经存在，更新其值，返回旧的值
-    public V put(K key, V value) {
+    public void put(K key, V value) {
         // 计算键的哈希码
         int hash = hash(key);
         // 计算键在数组中的索引
@@ -75,7 +75,7 @@ public class MyHashMap<K, V> {
             if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
                 V oldValue = e.value;
                 e.value = value;
-                return oldValue;
+                return;
             }
         }
         // 如果没有找到键相等的节点，创建一个新的节点，插入到链表的头部
@@ -88,7 +88,6 @@ public class MyHashMap<K, V> {
             resize(2 * table.length);
         }
         // 返回null，表示没有旧的值
-        return null;
     }
 
     // 扩容哈希表，重新分配每个节点的位置
@@ -103,7 +102,7 @@ public class MyHashMap<K, V> {
         threshold = (int) (newCapacity * LOAD_FACTOR);
     }
 
-    // 把一个数组中的每个节点转移到另一个数组中
+    // 把当前哈希表的数组中的每个节点转移到另一个数组中
     void transfer(Node<K, V>[] newTable) {
         // 遍历旧的数组中的每个位置
         for (int i = 0; i < table.length; i++) {
@@ -170,11 +169,21 @@ public class MyHashMap<K, V> {
         return size;
     }
 
-    // 判断哈希表是否为空
+    /**
+     * 判断哈希表是否为空
+     *
+     * @return boolean
+     */
     public boolean isEmpty() {
         return size == 0;
     }
 
+    /**
+     * 判断是否包含Key
+     *
+     * @param key 关键
+     * @return boolean
+     */
     public boolean containsKey(Object key) {
         // 计算键的哈希码
         int hash = hash(key);
@@ -189,5 +198,36 @@ public class MyHashMap<K, V> {
         }
         // 键相等的节点不存在，返回false
         return false;
+    }
+
+    /**
+     * 合并两个不同的HashMap对象，返回合并后的新HashMap对象,
+     * 如果两个HashMap中有相同的键，那么后一个HashMap中的键值对会覆盖前一个HashMap中的键值对
+     *
+     * @param map1 map1
+     * @param map2 map2
+     * @return {@link MyHashMap}<{@link K}, {@link V}>
+     */
+    public static <K, V> MyHashMap<K, V> merge(MyHashMap<K, V> map1, MyHashMap<K, V> map2) {
+        // 创建一个新的HashMap对象
+        MyHashMap<K, V> mergedMap = new MyHashMap<>();
+
+        // 遍历第一个HashMap的每个节点，将其键值对添加到新的HashMap中
+        for (Node<K, V> e : map1.table) {
+            while (e != null) {
+                mergedMap.put(e.key, e.value);
+                e = e.next;
+            }
+        }
+
+        // 遍历第二个HashMap的每个节点，将其键值对添加到新的HashMap中
+        for (Node<K, V> e : map2.table) {
+            while (e != null) {
+                mergedMap.put(e.key, e.value);
+                e = e.next;
+            }
+        }
+
+        return mergedMap;
     }
 }

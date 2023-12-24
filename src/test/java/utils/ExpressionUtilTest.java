@@ -26,14 +26,14 @@ public class ExpressionUtilTest {
     }
     @Test
     public void testWriteExpr() {
-        System.out.println("testWriteExpr");
+        System.out.println("testWriteExpr:");
         ExpressionUtil.WriteExpr(E1);
         ExpressionUtil.WriteExpr(E2);
         ExpressionUtil.WriteExpr(E3);
     }
     @Test
     public void testAssign() {
-        System.out.println("testAssign");
+        System.out.println("testAssign:");
         System.out.println(ExpressionUtil.Assign('x', 2, E1));
         System.out.println(ExpressionUtil.Assign('x', 2, E2));
         System.out.println(ExpressionUtil.Assign('x', 2, E3));
@@ -56,5 +56,23 @@ public class ExpressionUtilTest {
         System.out.println(ExpressionUtil.Value(E2));
         System.out.println(ExpressionUtil.Value(E3));
     }
-
+    @Test
+    public void testCompoundExpr() {
+        System.out.println("testCompoundExpr:");
+        ExpressionTree E4 = ExpressionUtil.CompoundExpr('+', E1, E2);
+        ExpressionUtil.WriteExpr(E4);
+        System.out.println(ExpressionUtil.Value(E4));
+        ExpressionTree E5 = ExpressionUtil.CompoundExpr('*', E1, E2);
+        ExpressionUtil.WriteExpr(E5);
+        System.out.println(ExpressionUtil.Value(E5));
+        ExpressionTree E6 = ExpressionUtil.CompoundExpr('-', E1, E2);
+        ExpressionUtil.WriteExpr(E6);
+        System.out.println(ExpressionUtil.Value(E6));
+        ExpressionTree E7 = ExpressionUtil.CompoundExpr('/', E1, E2);
+        ExpressionUtil.WriteExpr(E7);
+        System.out.println(ExpressionUtil.Value(E7));
+        ExpressionTree E8 = ExpressionUtil.CompoundExpr('^', E1, E3);
+        ExpressionUtil.WriteExpr(E8);
+        System.out.println(ExpressionUtil.Value(E8));
+    }
 }

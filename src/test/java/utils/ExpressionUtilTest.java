@@ -1,16 +1,19 @@
 package utils;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
 import pojo.Expression;
+import pojo.ExpressionTree;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 public class ExpressionUtilTest {
-    Expression E1;
-    Expression E2;
-    Expression E3;
+    ExpressionTree E1;
+    ExpressionTree E2;
+    ExpressionTree E3;
     @Test
     @Before
     public void testReadExpr() {
@@ -23,8 +26,35 @@ public class ExpressionUtilTest {
     }
     @Test
     public void testWriteExpr() {
+        System.out.println("testWriteExpr");
         ExpressionUtil.WriteExpr(E1);
         ExpressionUtil.WriteExpr(E2);
         ExpressionUtil.WriteExpr(E3);
     }
+    @Test
+    public void testAssign() {
+        System.out.println("testAssign");
+        System.out.println(ExpressionUtil.Assign('x', 2, E1));
+        System.out.println(ExpressionUtil.Assign('x', 2, E2));
+        System.out.println(ExpressionUtil.Assign('x', 2, E3));
+//        要用字符串!
+        System.out.println(E1.getVariableCountMap().get("x"));
+        System.out.println(E2.getVariableCountMap().get("x"));
+        System.out.println(E3.getVariableCountMap().get("x"));
+    }
+    @Test
+    public void testValue() {
+        System.out.println("testValue:");
+        System.out.println(ExpressionUtil.Value(E1));
+        System.out.println(ExpressionUtil.Value(E2));
+        System.out.println(ExpressionUtil.Value(E3));
+        ExpressionUtil.Assign('x', 2, E1);
+        ExpressionUtil.Assign('x', 2, E2);
+        ExpressionUtil.Assign('x', 2, E3);
+        ExpressionUtil.Assign('b', 2, E3);
+        System.out.println(ExpressionUtil.Value(E1));
+        System.out.println(ExpressionUtil.Value(E2));
+        System.out.println(ExpressionUtil.Value(E3));
+    }
+
 }

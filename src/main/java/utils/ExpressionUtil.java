@@ -133,6 +133,24 @@ public class ExpressionUtil {
         return false;
     }
 
+    /**
+     * 实现对变量V的赋值（V = c）
+     * TODO: 异常情况可用异常处理机制处理
+     * @param V 变量
+     * @param c 将要赋给变量的值
+     */
+    public static boolean Assign(String V, int c, ExpressionTree E) {
+        if (E == null) {
+            return false;
+        }
+        MyHashMap<String, Integer> variableCountMap = E.getVariableCountMap();
+        if (variableCountMap.containsKey(V)) {
+            variableCountMap.put(V, c);
+            return true;
+        }
+        return false;
+    }
+
     public static Double Value(ExpressionTree E) {
         if (E == null) {
             return null;

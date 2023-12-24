@@ -211,7 +211,8 @@ public class ExpressionUtil {
         if (E1 == null || E2 == null) {
             return null;
         }
-        ExpressionTree expressionTree = new ExpressionTree();
+        MyHashMap<String, Integer> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
+        ExpressionTree expressionTree = new ExpressionTree(newCountMap);
         expressionTree.setOp(P);
         expressionTree.left = E1;
         expressionTree.right = E2;

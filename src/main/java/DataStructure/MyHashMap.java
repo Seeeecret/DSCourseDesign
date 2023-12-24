@@ -1,22 +1,72 @@
 package DataStructure;
-
-// 定义一个哈希表类，包含一个节点数组，一个大小和一个阈值
+/**
+ * 定义一个哈希表类，包含一个节点数组，一个大小和一个阈值。
+ *
+ * @param <K> 键的类型
+ * @param <V> 值的类型
+ */
 public class MyHashMap<K, V> {
-    Node<K, V>[] table; // 节点数组
-    int size; // 大小
-    int threshold; // 阈值
-    // 定义一个哈希表的初始容量和负载因子
+
+    /**
+     * 节点数组，存储键值对的链表。
+     */
+    Node<K, V>[] table;
+
+    /**
+     * 哈希表的大小。
+     */
+    int size;
+
+    /**
+     * 扩容阈值，当大小超过阈值时，会扩容哈希表。
+     */
+    int threshold;
+
+    /**
+     * 哈希表的初始容量。
+     */
     static final int INITIAL_CAPACITY = 16;
+
+    /**
+     * 负载因子，用于计算扩容阈值。
+     */
     static final float LOAD_FACTOR = 0.75f;
 
-    // 定义一个节点类，包含键，值，哈希码和下一个节点的引用
+    /**
+     * 节点类，包含键，值，哈希码和下一个节点的引用。
+     *
+     * @param <K> 键的类型
+     * @param <V> 值的类型
+     */
     private static class Node<K, V> {
-        final K key; // 键
-        V value; // 值
-        final int hash; // 哈希码
-        Node<K, V> next; // 下一个节点
+        /**
+         * 键。
+         */
+        final K key;
 
-        // 构造方法，初始化键，值，哈希码和下一个节点
+        /**
+         * 值。
+         */
+        V value;
+
+        /**
+         * 哈希码。
+         */
+        final int hash;
+
+        /**
+         * 下一个节点的引用。
+         */
+        Node<K, V> next;
+
+        /**
+         * 构造方法，初始化键，值，哈希码和下一个节点。
+         *
+         * @param key   键
+         * @param value 值
+         * @param hash  哈希码
+         * @param next  下一个节点
+         */
         Node(K key, V value, int hash, Node<K, V> next) {
             this.key = key;
             this.value = value;
@@ -25,28 +75,46 @@ public class MyHashMap<K, V> {
         }
     }
 
-    // 构造方法，初始化节点数组，大小和阈值
+    /**
+     * 构造方法，初始化节点数组，大小和阈值。
+     */
     public MyHashMap() {
         table = new Node[INITIAL_CAPACITY];
         size = 0;
         threshold = (int) (INITIAL_CAPACITY * LOAD_FACTOR);
     }
 
-    // 计算一个对象的哈希码，使用了Java官方的方法
+    /**
+     * 计算一个对象的哈希码，使用了Java官方的方法。
+     *
+     * @param key 键
+     * @return 哈希码
+     */
     static int hash(Object key) {
         int h;
         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
     }
 
-    // 根据哈希码和数组长度计算一个对象在数组中的索引
-    // 这个公式的好处是，它可以保证索引的范围在0到数组长度减一之间，而且数组的长度必须是2的幂，
-    // 这样可以使得哈希码的每一位都能参与到索引的计算中，从而均匀地分布在数组中，减少冲突的概率，
-    // 提高哈希表的性能
+    /**
+     * 根据哈希码和数组长度计算一个对象在数组中的索引。
+     * 这个公式的好处是，它可以保证索引的范围在0到数组长度减一之间，而且数组的长度必须是2的幂，
+     * 这样可以使得哈希码的每一位都能参与到索引的计算中，从而均匀地分布在数组中，减少冲突的概率，
+     * 提高哈希表的性能。
+     *
+     * @param hash   哈希码
+     * @param length 数组长度
+     * @return 索引
+     */
     static int indexFor(int hash, int length) {
         return hash & (length - 1);
     }
 
-    // 根据键获取对应的值，如果键不存在，返回null
+    /**
+     * 根据键获取对应的值，如果键不存在，返回null。
+     *
+     * @param key 键
+     * @return 对应的值，如果键不存在，返回null
+     */
     public V get(Object key) {
         // 计算键的哈希码
         int hash = hash(key);
@@ -63,17 +131,21 @@ public class MyHashMap<K, V> {
         return null;
     }
 
-    // 向哈希表中添加一个键值对，如果键已经存在，更新其值，返回旧的值
+    /**
+     * 向哈希表中添加一个键值对，如果键已经存在，更新其值。
+     *
+     * @param key   键
+     * @param value 值
+     */
     public void put(K key, V value) {
         // 计算键的哈希码
         int hash = hash(key);
         // 计算键在数组中的索引
         int index = indexFor(hash, table.length);
-        // 遍历索引位置的链表，找到键相等的节点，更新其值，返回旧的值
+        // 遍历索引位置的链表，找到键相等的节点，更新其值
         for (Node<K, V> e = table[index]; e != null; e = e.next) {
             Object k;
             if (e.hash == hash && ((k = e.key) == key || (key != null && key.equals(k)))) {
-                V oldValue = e.value;
                 e.value = value;
                 return;
             }
@@ -87,10 +159,13 @@ public class MyHashMap<K, V> {
         if (size > threshold) {
             resize(2 * table.length);
         }
-        // 返回null，表示没有旧的值
     }
 
-    // 扩容哈希表，重新分配每个节点的位置
+    /**
+     * 扩容哈希表，重新分配每个节点的位置。
+     *
+     * @param newCapacity 新的容量
+     */
     void resize(int newCapacity) {
         // 创建一个新的数组，长度为新的容量
         Node<K, V>[] newTable = new Node[newCapacity];
@@ -102,7 +177,11 @@ public class MyHashMap<K, V> {
         threshold = (int) (newCapacity * LOAD_FACTOR);
     }
 
-    // 把当前哈希表的数组中的每个节点转移到另一个数组中
+    /**
+     * 把当前哈希表的数组中的每个节点转移到另一个数组中。
+     *
+     * @param newTable 新的数组
+     */
     void transfer(Node<K, V>[] newTable) {
         // 遍历旧的数组中的每个位置
         for (int i = 0; i < table.length; i++) {
@@ -128,7 +207,12 @@ public class MyHashMap<K, V> {
         }
     }
 
-    // 从哈希表中删除一个键，返回其对应的值，如果键不存在，返回null
+    /**
+     * 从哈希表中删除一个键，返回其对应的值，如果键不存在，返回null。
+     *
+     * @param key 键
+     * @return 对应的值，如果键不存在，返回null
+     */
     public V remove(Object key) {
         // 计算键的哈希码
         int hash = hash(key);
@@ -155,7 +239,9 @@ public class MyHashMap<K, V> {
         return null;
     }
 
-    // 清空哈希表
+    /**
+     * 清空哈希表。
+     */
     public void clear() {
         // 遍历数组中的每个位置，把它们设为null，方便垃圾回收
         for (int i = 0; i < table.length; i++)
@@ -164,7 +250,11 @@ public class MyHashMap<K, V> {
         size = 0;
     }
 
-    // 返回哈希表的大小
+    /**
+     * 返回哈希表的大小。
+     *
+     * @return 哈希表的大小
+     */
     public int size() {
         return size;
     }

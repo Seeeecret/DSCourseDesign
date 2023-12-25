@@ -1,13 +1,18 @@
 package utils;
 
-import DataStructure.MyHashMap;
+import collections.MyHashMap;
 import pojo.Expression;
 import pojo.ExpressionTree;
-import pojo.MutableInteger;
+import collections.MutableInteger;
+
 import java.util.Scanner;
 
+/**
+ *
+ */
 public class ExpressionUtil {
 //    TODO:注意必须要用一个变量接住ReadExpr的返回值，会无法正常读取
+
     /**
      * 以字符序列的形式输入语法正确的前缀表示式并构造表达式E，对外暴露的接口
      *
@@ -29,7 +34,7 @@ public class ExpressionUtil {
         return expressionTree;
     }
 
-    public static ExpressionTree testReadExpr(Expression E,String inputString) {
+    public static ExpressionTree testReadExpr(Expression E, String inputString) {
         MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
         if (inputString.isEmpty()) {
             System.out.println("Invalid input");
@@ -43,7 +48,8 @@ public class ExpressionUtil {
 
     /**
      * 以字符序列的形式输入语法正确的前缀表示式并构造表达式E，内部使用的方法
-     * @param E 表达式
+     *
+     * @param E     表达式
      * @param input 输入的字符序列
      * @param index 用于在字符序列中移动的索引
      */
@@ -54,20 +60,20 @@ public class ExpressionUtil {
         char currentChar = input[index.increment().getValue()];
         if (Character.isDigit(currentChar)) {
             // 正数，构造常量表达式
-            E.op = '#';
+            E.op = "#";
             E.value = Integer.parseInt(Character.toString(currentChar));
         } else if (currentChar == '-' && input.length == 2) {
             // 负数，构造常量表达式
-            E.op = '#';
+            E.op = "#";
             E.value = -Integer.parseInt(Character.toString(input[index.increment().getValue()]));
 
         } else if (Character.isAlphabetic(currentChar)) {
             // 变量，构造变量表达式
             E.value = 0; // 变量的初值为0
-            E.setOp(currentChar);
+            E.setOp(String.valueOf(currentChar));
         } else if (isOperator(currentChar)) {
             // 运算符，构造复合表达式
-            E.op = currentChar;
+            E.op = String.valueOf(currentChar);
             E.left = new Expression();
             E.right = new Expression();
             ReadExpression(E.left, input, index);
@@ -77,6 +83,7 @@ public class ExpressionUtil {
 
     /**
      * 用带括弧的中缀表示式输出表达式E的外部接口
+     *
      * @param E 表达式
      */
     public static void WriteExpr(Expression E) {
@@ -86,14 +93,16 @@ public class ExpressionUtil {
 
     /**
      * 用带括弧的中缀表示式输出表达式E的内部方法
+     *
      * @param E 表达式
      */
     private static void WriteExpression(Expression E) {
         if (E != null) {
-            if (E.op == '#') {
+            if (E.op.equals("#")) {
                 // 常量
                 System.out.print(E.value);
-            } else if (Character.isAlphabetic(E.op)) {
+            } else if (Character.isAlphabetic(E.op.charAt(0))
+                    && E.op.length() == 1) {
                 // 变量
                 System.out.print(E.op);
             } else {
@@ -106,8 +115,10 @@ public class ExpressionUtil {
             }
         }
     }
+
     /**
      * 判断字符是否是运算符
+     *
      * @param c
      * @return boolean
      */
@@ -118,6 +129,7 @@ public class ExpressionUtil {
     /**
      * 实现对变量V的赋值（V = c）
      * TODO: 异常情况可用异常处理机制处理
+     *
      * @param V 变量
      * @param c 将要赋给变量的值
      */
@@ -136,6 +148,7 @@ public class ExpressionUtil {
     /**
      * 实现对变量V的赋值（V = c）
      * TODO: 异常情况可用异常处理机制处理
+     *
      * @param V 变量
      * @param c 将要赋给变量的值
      */
@@ -173,24 +186,27 @@ public class ExpressionUtil {
 
     /**
      * 计算表达式E的值的内部方法
-     * @param E 表达式
+     *
+     * @param E                表达式
+     * @param variableCountMap 变量哈希表
      * @return int
      */
     private static double Evaluate(Expression E, MyHashMap<String, Integer> variableCountMap) {
         if (E == null) {
             return 0;
         }
-        if (E.op == '#') {
+        if ("#".equals(E.op)) {
             // 常量
             return E.value;
-        } else if (Character.isAlphabetic(E.op)) {
+        } else if (Character.isAlphabetic(E.op.charAt(0))
+                && E.op.length() == 1) {
             // 变量
-            return variableCountMap.get(Character.toString(E.op).toLowerCase());
+            return variableCountMap.get(E.op.toLowerCase());
         } else {
             // 复合表达式
-            double leftValue = Evaluate(E.left,variableCountMap);
-            double rightValue = Evaluate(E.right,variableCountMap);
-            switch (E.op) {
+            double leftValue = Evaluate(E.left, variableCountMap);
+            double rightValue = Evaluate(E.right, variableCountMap);
+            switch (E.op.charAt(0)) {
                 case '+':
                     return leftValue + rightValue;
                 case '-':
@@ -213,9 +229,69 @@ public class ExpressionUtil {
         }
         MyHashMap<String, Integer> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
         ExpressionTree expressionTree = new ExpressionTree(newCountMap);
-        expressionTree.setOp(P);
+        expressionTree.setOp(Character.toString(P));
         expressionTree.left = E1;
         expressionTree.right = E2;
         return expressionTree;
     }
+
+    public static ExpressionTree MergeConst(ExpressionTree E) {
+        MergeConstParameter(E);
+        return E;
+    }
+
+    /**
+     * 常数合并操作MergeConst(E) –– 合并表达式E中所有常数运算。
+     * 例如，对表达式E=(2+3-a)*(b+3*4)进行合并常数的操作后，求得E=(5-a)*(b+12)。
+     *
+     * @param E e
+     */
+    public static void MergeConstParameter(Expression E) {
+        if ("#".equals(E.op) || Character.isAlphabetic(E.op.charAt(0))
+                && E.op.length() == 1) {
+            // 常量或变量，不需要合并
+            return;
+        } else {
+            // 复合表达式
+
+            // 递归合并左右子表达式
+            MergeConstParameter(E.left);
+            MergeConstParameter(E.right);
+
+            // 如果左右子表达式都是常数，合并常数运算
+            if ("#".equals(E.left.op) && "#".equals(E.right.op)) {
+                E.value = applyOperator(E.op.charAt(0), E.left.value, E.right.value);
+                E.op = "#"; // 将操作符清空，表示这是一个常数节点
+                E.left = E.right = null; // 清空左右子表达式
+            }
+
+        }
+
+    }
+
+    /**
+     * 应用操作符到两个常数上
+     *
+     * @param op    操作符
+     * @param left  左
+     * @param right 右
+     * @return int
+     */
+    private static int applyOperator(char op, int left, int right) {
+        switch (op) {
+            case '+':
+                return left + right;
+            case '-':
+                return left - right;
+            case '*':
+                return left * right;
+            case '/':
+                return left / right;
+            case '^':
+                return (int) Math.pow(left, right);
+            default:
+                return 0;
+        }
+    }
+
 }

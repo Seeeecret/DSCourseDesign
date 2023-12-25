@@ -1,6 +1,6 @@
 package pojo;
 
-import DataStructure.MyHashMap;
+import collections.MyHashMap;
 
 public class ExpressionTree extends Expression {
     /**
@@ -8,7 +8,7 @@ public class ExpressionTree extends Expression {
      */
     private MyHashMap<String, Integer> variableCountMap;
 
-    public ExpressionTree(char op, int value, Expression left, Expression right, MyHashMap<String, Integer> variableCountMap) {
+    public ExpressionTree(String op, int value, Expression left, Expression right, MyHashMap<String, Integer> variableCountMap) {
         super(op, value, left, right);
         this.variableCountMap = variableCountMap;
     }

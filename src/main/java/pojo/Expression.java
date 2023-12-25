@@ -4,7 +4,7 @@ public class Expression{
     /**
      * 操作符
      */
-    public char op;
+    public String op;
 
     /**
      * 操作数
@@ -23,7 +23,7 @@ public class Expression{
      * @param left 左子表达式
      * @param right 右子表达式
      */
-    public Expression(char op, int value, Expression left, Expression right) {
+    public Expression(String op, int value, Expression left, Expression right) {
         this.op = op;
         this.value = value;
         this.left = left;
@@ -34,17 +34,17 @@ public class Expression{
      * 空构造函数
      */
     public Expression() {
-        op = ' ';
+        op = " ";
         value = null;
         left = null;
         right = null;
     }
 
-    public char getOp() {
+    public String getOp() {
         return op;
     }
 
-    public void setOp(char op) {
+    public void setOp(String op) {
         this.op = op;
     }
 

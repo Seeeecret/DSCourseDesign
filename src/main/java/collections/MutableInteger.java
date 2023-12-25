@@ -1,4 +1,4 @@
-package pojo;
+package collections;
 
 public class MutableInteger {
     private int value;

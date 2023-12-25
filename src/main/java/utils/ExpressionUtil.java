@@ -1,6 +1,7 @@
 package utils;
 
 import collections.MyHashMap;
+import collections.MyStack;
 import pojo.Expression;
 import pojo.ExpressionTree;
 import collections.MutableInteger;
@@ -79,6 +80,55 @@ public class ExpressionUtil {
             ReadExpression(E.left, input, index);
             ReadExpression(E.right, input, index);
         }
+    }
+
+    /**
+     * 构造三角函数表达式的子树
+     *
+     * @param E           e
+     * @param inputString 输入字符串
+     */
+    private static void ReadTrigExpr(Expression E, String inputString) {
+        MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
+        if (inputString.isEmpty()) {
+            System.out.println("Invalid input");
+            return;
+        }
+        char[] input = inputString.toCharArray();// 存储输入的字符序列
+        ReadExpression(E.left, input, index);
+        ReadExpression(E.right, input, index);
+    }
+
+    private static void searchReplaceTargetNode(Expression newExpression, Expression targetTree, String targetOp) {
+//        是无效输入
+        if (newExpression == null || targetTree == null || (targetTree.left == null && targetTree.right == null)) {
+            return;
+        }
+//        是数字
+        if (Character.isDigit(targetTree.getOp().charAt(0))) {
+            return;
+        } else if (targetTree.left == null && targetTree.right != null) {
+            if (targetTree.right.getOp().equals(targetOp)) {
+                targetTree.right = newExpression;
+            } else {
+                searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
+            }
+        } else if (targetTree.left != null && targetTree.right == null) {
+            if (targetTree.left.getOp().equals(targetOp)) {
+                targetTree.left = newExpression;
+            } else {
+                searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
+            }
+        } else {
+            if (targetTree.left.getOp().equals(targetOp)) {
+                targetTree.left = newExpression;
+            }
+            if (targetTree.right.getOp().equals(targetOp)) {
+                targetTree.right = newExpression;
+            }
+        }
+        searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
+        searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
     }
 
     /**
@@ -164,11 +214,38 @@ public class ExpressionUtil {
         return false;
     }
 
-    public static boolean assignTrigFunction(String trigFunction,String inputString,ExpressionTree E){
+    /**
+     * 在表达式中添加三角函数等初等函数的操作。
+     * 实现原理为在对变量进行赋值时，可以选择将变量设置为一个三角函数，且函数的输入值就就为用户设置的变量的值。
+     * TODO: 需要增加限制禁止变量的输入
+     * @param trigFunction 三角函数
+     * @param inputString  输入字符串
+     * @param E            e
+     * @return boolean
+     */
+    public static boolean assignTrigFunction(String trigFunction, String V, String inputString, ExpressionTree E) {
         if (inputString.isEmpty()) {
             System.out.println("Invalid input");
             return false;
+        } else if (E == null) {
+            return false;
         }
+        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
+        if (!variableCountMap.containsKey(V.toLowerCase())) {
+            System.out.println("Invalid variable");
+            return false;
+        }
+//        从哈希表移除原来的变量
+        variableCountMap.remove(V.toLowerCase());
+//        当前变量的操作符变成三角函数名+变量名，下挂表达式
+        Expression newExpression = new Expression();
+        newExpression.setOp(trigFunction + V.toLowerCase());
+//        读取三角函数的子树
+        ReadTrigExpr(newExpression, inputString);
+//        在原表达式中搜索并替换原来的变量
+        searchReplaceTargetNode(newExpression, E, V.toLowerCase());
+//        添加新的，当前变量下挂表达式的值添加到哈希表中
+        variableCountMap.put(trigFunction + V.toLowerCase(), evaluatePrefixExpression(inputString));
         return true;
     }
 
@@ -210,6 +287,32 @@ public class ExpressionUtil {
                 && E.op.length() == 1) {
             // 变量
             return variableCountMap.get(E.op.toLowerCase());
+        } else if (Character.isAlphabetic(E.op.charAt(0)) && E.op.length() > 2) {
+//            三角函数的情况，下挂表达式的计算值已存放在表达式树的哈希表中,Key为三角函数名+变量名
+            double originValue = variableCountMap.get(E.op);
+            String trigFunction = E.op.substring(0, E.op.length() - 1);
+            switch (trigFunction) {
+                case "sin":
+                    return Math.sin(originValue);
+                case "cos":
+                    return Math.cos(originValue);
+                case "tan":
+                    return Math.tan(originValue);
+                case "cot":
+                    return 1 / Math.tan(originValue);
+                case "sec":
+                    return 1 / Math.cos(originValue);
+                case "csc":
+                    return 1 / Math.sin(originValue);
+                case "asin":
+                    return Math.asin(originValue);
+                case "acos":
+                    return Math.acos(originValue);
+                case "atan":
+                    return Math.atan(originValue);
+                default:
+                    return 0;
+            }
         } else {
             // 复合表达式
             double leftValue = Evaluate(E.left, variableCountMap);
@@ -310,4 +413,76 @@ public class ExpressionUtil {
         }
     }
 
+    /**
+     * 应用操作符到两个常数上
+     *
+     * @param op    操作符
+     * @param left  左
+     * @param right 右
+     * @return int
+     */
+    private static double applyOperator(char op, double left, double right) {
+        switch (op) {
+            case '+':
+                return left + right;
+            case '-':
+                return left - right;
+            case '*':
+                return left * right;
+            case '/':
+                return left / right;
+            case '^':
+                return (int) Math.pow(left, right);
+            default:
+                return 0;
+        }
+    }
+
+    public static double evaluatePrefixExpression(String prefixExpression) {
+        if (prefixExpression == null || prefixExpression.isEmpty()) {
+            throw new IllegalArgumentException("Input expression is null or empty.");
+        }
+
+        // 将表达式拆分为字符数组
+        char[] chars = prefixExpression.toCharArray();
+
+        // 创建一个栈来存储操作数
+        MyStack<Double> operandStack = new MyStack<>();
+
+        // 从右到左遍历表达式
+        for (int i = chars.length - 1; i >= 0; i--) {
+            char currentChar = chars[i];
+
+            // 如果是操作数，则将其推入栈中
+            if (Character.isDigit(currentChar) || Character.isLetter(currentChar)) {
+                // 处理多位数字
+                StringBuilder operandBuilder = new StringBuilder();
+                while (i >= 0 && (Character.isDigit(chars[i]) || Character.isLetter(chars[i]))) {
+                    operandBuilder.insert(0, chars[i]);
+                    i--;
+                }
+                i++; // 将i还原为当前操作数的起始位置
+                double operand = Double.parseDouble(operandBuilder.toString());
+                operandStack.push(operand);
+            } else if (isOperator(currentChar)) {
+                // 如果是运算符，则取出栈中的两个操作数进行计算，并将结果推入栈中
+                if (operandStack.size() < 2) {
+                    throw new IllegalArgumentException("Invalid expression format: not enough operands for operator.");
+                }
+                double operand1 = operandStack.pop();
+                double operand2 = operandStack.pop();
+                double result = applyOperator(currentChar, operand1, operand2);
+                operandStack.push(result);
+            } else {
+                throw new IllegalArgumentException("Invalid character in expression: " + currentChar);
+            }
+        }
+
+        // 最终栈中应该只有一个元素，即表达式的计算结果
+        if (operandStack.size() != 1) {
+            throw new IllegalArgumentException("Invalid expression format: too many operands or operators.");
+        }
+
+        return operandStack.pop();
+    }
 }

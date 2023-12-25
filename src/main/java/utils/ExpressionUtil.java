@@ -137,9 +137,9 @@ public class ExpressionUtil {
         if (E == null) {
             return false;
         }
-        MyHashMap<String, Integer> variableCountMap = E.getVariableCountMap();
+        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
         if (variableCountMap.containsKey(Character.toString(V))) {
-            variableCountMap.put(Character.toString(V), c);
+            variableCountMap.put(Character.toString(V), (double) c);
             return true;
         }
         return false;
@@ -156,12 +156,20 @@ public class ExpressionUtil {
         if (E == null) {
             return false;
         }
-        MyHashMap<String, Integer> variableCountMap = E.getVariableCountMap();
+        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
         if (variableCountMap.containsKey(V)) {
-            variableCountMap.put(V, c);
+            variableCountMap.put(V, (double) c);
             return true;
         }
         return false;
+    }
+
+    public static boolean assignTrigFunction(String trigFunction,String inputString,ExpressionTree E){
+        if (inputString.isEmpty()) {
+            System.out.println("Invalid input");
+            return false;
+        }
+        return true;
     }
 
 
@@ -191,7 +199,7 @@ public class ExpressionUtil {
      * @param variableCountMap 变量哈希表
      * @return int
      */
-    private static double Evaluate(Expression E, MyHashMap<String, Integer> variableCountMap) {
+    private static double Evaluate(Expression E, MyHashMap<String, Double> variableCountMap) {
         if (E == null) {
             return 0;
         }
@@ -223,11 +231,19 @@ public class ExpressionUtil {
         }
     }
 
+    /**
+     * 复合两个表达式，构建一个新表达式
+     *
+     * @param P  p
+     * @param E1 e1
+     * @param E2 e2
+     * @return {@link ExpressionTree}
+     */
     public static ExpressionTree CompoundExpr(char P, ExpressionTree E1, ExpressionTree E2) {
         if (E1 == null || E2 == null) {
             return null;
         }
-        MyHashMap<String, Integer> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
+        MyHashMap<String, Double> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
         ExpressionTree expressionTree = new ExpressionTree(newCountMap);
         expressionTree.setOp(Character.toString(P));
         expressionTree.left = E1;

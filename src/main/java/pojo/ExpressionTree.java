@@ -2,28 +2,30 @@ package pojo;
 
 import collections.MyHashMap;
 
+import static utils.Consts.*;
+
 public class ExpressionTree extends Expression {
     /**
      * 记录表达式中的变量的哈希表
      */
-    private MyHashMap<String, Integer> variableCountMap;
+    private MyHashMap<String, Double> variableCountMap;
 
-    public ExpressionTree(String op, int value, Expression left, Expression right, MyHashMap<String, Integer> variableCountMap) {
+    public ExpressionTree(String op, int value, Expression left, Expression right, MyHashMap<String, Double> variableCountMap) {
         super(op, value, left, right);
         this.variableCountMap = variableCountMap;
     }
 
 
 
-    public ExpressionTree(MyHashMap<String, Integer> variableCountMap) {
+    public ExpressionTree(MyHashMap<String, Double> variableCountMap) {
         this.variableCountMap = variableCountMap;
     }
 
-    public MyHashMap<String, Integer> getVariableCountMap() {
+    public MyHashMap<String, Double> getVariableCountMap() {
         return variableCountMap;
     }
 
-    public void setVariableCountMap(MyHashMap<String, Integer> variableCountMap) {
+    public void setVariableCountMap(MyHashMap<String, Double> variableCountMap) {
         this.variableCountMap = variableCountMap;
     }
 
@@ -38,11 +40,11 @@ public class ExpressionTree extends Expression {
         if (E == null) {
             return null;
         }
-        MyHashMap<String, Integer> variableCountMap = new MyHashMap<>();
+        MyHashMap<String, Double> variableCountMap = new MyHashMap<>();
         char[] charArray = input.toLowerCase().toCharArray();
         for (char c : charArray) {
             if (Character.isAlphabetic(c) && !variableCountMap.containsKey(Character.toString(c))) {
-                variableCountMap.put(Character.toString(c), 0);
+                variableCountMap.put(Character.toString(c), VARIABLE_DEFAULT_VALUE);
             }
         }
         return new ExpressionTree(variableCountMap);

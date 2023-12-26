@@ -55,7 +55,7 @@ public class ExpressionUtil {
      * @param index 用于在字符序列中移动的索引
      */
     private static void ReadExpression(Expression E, char[] input, MutableInteger index) {
-        if (index.getValue() >= input.length) {
+        if (index.getValue() >= input.length || E == null) {
             return;
         }
         char currentChar = input[index.increment().getValue()];
@@ -88,6 +88,7 @@ public class ExpressionUtil {
      * @param E           e
      * @param inputString 输入字符串
      */
+    @Deprecated
     private static void ReadTrigExpr(Expression E, String inputString) {
         MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
         if (inputString.isEmpty()) {
@@ -99,36 +100,49 @@ public class ExpressionUtil {
         ReadExpression(E.right, input, index);
     }
 
-    private static void searchReplaceTargetNode(Expression newExpression, Expression targetTree, String targetOp) {
+    private static void searchReplaceTargetNode(String trigFuc, Expression newExpression, Expression targetTree, String targetOp) {
 //        是无效输入
-        if (newExpression == null || targetTree == null || (targetTree.left == null && targetTree.right == null)) {
+        if (newExpression == null || targetTree == null) {
             return;
         }
+//        在整棵树中搜索目标节点，当当前结点的操作符为targetOp时，说明查找成功。
+//        将目标节点的左子树设置为操作符为trigFuc的新节点对象，右子树设置为newExpression
+        if (targetTree.getOp().equals(targetOp)) {
+            targetTree.left = new Expression();
+            targetTree.left.setOp(trigFuc);
+            targetTree.right = newExpression;
+        }
+//        递归搜索左右子树
+
+        searchReplaceTargetNode(trigFuc, newExpression, targetTree.left, targetOp);
+        searchReplaceTargetNode(trigFuc, newExpression, targetTree.right, targetOp);
+
+
 //        是数字
-        if (Character.isDigit(targetTree.getOp().charAt(0))) {
-            return;
-        } else if (targetTree.left == null && targetTree.right != null) {
-            if (targetTree.right.getOp().equals(targetOp)) {
-                targetTree.right = newExpression;
-            } else {
-                searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
-            }
-        } else if (targetTree.left != null && targetTree.right == null) {
-            if (targetTree.left.getOp().equals(targetOp)) {
-                targetTree.left = newExpression;
-            } else {
-                searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
-            }
-        } else {
-            if (targetTree.left.getOp().equals(targetOp)) {
-                targetTree.left = newExpression;
-            }
-            if (targetTree.right.getOp().equals(targetOp)) {
-                targetTree.right = newExpression;
-            }
-        }
-        searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
-        searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
+//        if (Character.isDigit(targetTree.getOp().charAt(0))) {
+//            return;
+//        } else if (targetTree.left == null && targetTree.right != null) {
+//            if (targetTree.right.getOp().equals(targetOp)) {
+//                targetTree.right = newExpression;
+//            } else {
+//                searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
+//            }
+//        } else if (targetTree.left != null && targetTree.right == null) {
+//            if (targetTree.left.getOp().equals(targetOp)) {
+//                targetTree.left = newExpression;
+//            } else {
+//                searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
+//            }
+//        } else {
+//            if (targetTree.left.getOp().equals(targetOp)) {
+//                targetTree.left = newExpression;
+//            }
+//            if (targetTree.right.getOp().equals(targetOp)) {
+//                targetTree.right = newExpression;
+//            }
+//        }
+//        searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
+//        searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
     }
 
     /**
@@ -218,6 +232,7 @@ public class ExpressionUtil {
      * 在表达式中添加三角函数等初等函数的操作。
      * 实现原理为在对变量进行赋值时，可以选择将变量设置为一个三角函数，且函数的输入值就就为用户设置的变量的值。
      * TODO: 需要增加限制禁止变量的输入
+     *
      * @param trigFunction 三角函数
      * @param inputString  输入字符串
      * @param E            e
@@ -230,23 +245,38 @@ public class ExpressionUtil {
         } else if (E == null) {
             return false;
         }
-        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
-        if (!variableCountMap.containsKey(V.toLowerCase())) {
-            System.out.println("Invalid variable");
+//        由inputString构造三角函数的子树
+        ExpressionTree newTree = testReadExpr(new Expression(), inputString);
+//        计算inputString的值
+        double value = evaluatePrefixExpression(inputString);
+//        如果计算结果为NaN，说明输入的表达式不合法
+        if (Double.isNaN(evaluateTrigFunc(trigFunction,value))) {
+            System.out.println("Invalid input");
             return false;
         }
-//        从哈希表移除原来的变量
-        variableCountMap.remove(V.toLowerCase());
-//        当前变量的操作符变成三角函数名+变量名，下挂表达式
-        Expression newExpression = new Expression();
-        newExpression.setOp(trigFunction + V.toLowerCase());
-//        读取三角函数的子树
-        ReadTrigExpr(newExpression, inputString);
-//        在原表达式中搜索并替换原来的变量
-        searchReplaceTargetNode(newExpression, E, V.toLowerCase());
-//        添加新的，当前变量下挂表达式的值添加到哈希表中
-        variableCountMap.put(trigFunction + V.toLowerCase(), evaluatePrefixExpression(inputString));
+//        将哈希表中变量的值设置为inputString的值
+        E.getVariableCountMap().put(V.toLowerCase(), value);
+//        将变量的左子树替换为操作符为三角函数名的Expression对象，右子树为inputString的Expression对象
+        searchReplaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
+
         return true;
+//        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
+//        if (!variableCountMap.containsKey(V.toLowerCase())) {
+//            System.out.println("Invalid variable");
+//            return false;
+//        }
+////        从哈希表移除原来的变量
+//        variableCountMap.remove(V.toLowerCase());
+////        当前变量的操作符变成三角函数名+变量名，下挂表达式
+//        Expression newExpression = new Expression();
+//        newExpression.setOp(trigFunction + V.toLowerCase());
+////        读取三角函数的子树
+//        ReadTrigExpr(newExpression, inputString);
+////        在原表达式中搜索并替换原来的变量
+//        searchReplaceTargetNode(newExpression, E, V.toLowerCase());
+////        添加新的，当前变量下挂表达式的值添加到哈希表中
+//        variableCountMap.put(trigFunction + V.toLowerCase(), evaluatePrefixExpression(inputString));
+//        return true;
     }
 
 
@@ -286,32 +316,14 @@ public class ExpressionUtil {
         } else if (Character.isAlphabetic(E.op.charAt(0))
                 && E.op.length() == 1) {
             // 变量
-            return variableCountMap.get(E.op.toLowerCase());
-        } else if (Character.isAlphabetic(E.op.charAt(0)) && E.op.length() > 2) {
-//            三角函数的情况，下挂表达式的计算值已存放在表达式树的哈希表中,Key为三角函数名+变量名
-            double originValue = variableCountMap.get(E.op);
-            String trigFunction = E.op.substring(0, E.op.length() - 1);
-            switch (trigFunction) {
-                case "sin":
-                    return Math.sin(originValue);
-                case "cos":
-                    return Math.cos(originValue);
-                case "tan":
-                    return Math.tan(originValue);
-                case "cot":
-                    return 1 / Math.tan(originValue);
-                case "sec":
-                    return 1 / Math.cos(originValue);
-                case "csc":
-                    return 1 / Math.sin(originValue);
-                case "asin":
-                    return Math.asin(originValue);
-                case "acos":
-                    return Math.acos(originValue);
-                case "atan":
-                    return Math.atan(originValue);
-                default:
-                    return 0;
+//            情况1:三角函数的情况，下挂表达式的计算值已存放在表达式树的哈希表中,Key仍为变量名
+            if (E.left != null && E.right != null) {
+                double originValue = variableCountMap.get(E.op.toLowerCase());
+                String trigFunction = E.left.op;
+                return evaluateTrigFunc(trigFunction, originValue);
+            } else {
+//                情况2:普通变量的情况，直接从哈希表中取值
+                return variableCountMap. get(E.op.toLowerCase());
             }
         } else {
             // 复合表达式
@@ -331,6 +343,38 @@ public class ExpressionUtil {
                 default:
                     return 0;
             }
+        }
+    }
+
+    /**
+     * 求三角函数值
+     *
+     * @param trigFunc 三角函数
+     * @param value    值
+     * @return double
+     */
+    private static double evaluateTrigFunc(String trigFunc, double value) {
+        switch (trigFunc) {
+            case "sin":
+                return Math.sin(value);
+            case "cos":
+                return Math.cos(value);
+            case "tan":
+                return Math.tan(value);
+            case "cot":
+                return 1 / Math.tan(value);
+            case "sec":
+                return 1 / Math.cos(value);
+            case "csc":
+                return 1 / Math.sin(value);
+            case "asin":
+                return Math.asin(value);
+            case "acos":
+                return Math.acos(value);
+            case "atan":
+                return Math.atan(value);
+            default:
+                return 0;
         }
     }
 
@@ -455,15 +499,9 @@ public class ExpressionUtil {
 
             // 如果是操作数，则将其推入栈中
             if (Character.isDigit(currentChar) || Character.isLetter(currentChar)) {
-                // 处理多位数字
-                StringBuilder operandBuilder = new StringBuilder();
-                while (i >= 0 && (Character.isDigit(chars[i]) || Character.isLetter(chars[i]))) {
-                    operandBuilder.insert(0, chars[i]);
-                    i--;
-                }
-                i++; // 将i还原为当前操作数的起始位置
-                double operand = Double.parseDouble(operandBuilder.toString());
-                operandStack.push(operand);
+                // 只有单位数字的情况，没有多位数字的情况
+                operandStack.push((double) Character.getNumericValue(currentChar));
+
             } else if (isOperator(currentChar)) {
                 // 如果是运算符，则取出栈中的两个操作数进行计算，并将结果推入栈中
                 if (operandStack.size() < 2) {

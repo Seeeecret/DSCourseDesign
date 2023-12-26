@@ -108,6 +108,26 @@ public class ExpressionUtilTest {
         System.out.println(ExpressionUtil.Value(E14));
         System.out.println();
     }
+    @Test
+    public void testTrigExpr(){
+        System.out.println("testTrigExpr:");
+//        方法测试数据1
+        ExpressionUtil.WriteExpr(E3);
+        ExpressionUtil.assignTrigFunction("sin","a","+31",E3);
+        System.out.println(ExpressionUtil.Value(E3));
+//        方法测试数据2
+        ExpressionUtil.WriteExpr(E3);
+        ExpressionUtil.assignTrigFunction("cos","a","+31",E3);
+        System.out.println(ExpressionUtil.Value(E3));
+//        方法测试数据3
+        ExpressionUtil.WriteExpr(E3);
+        ExpressionUtil.assignTrigFunction("tan","a","+31",E3);
+        ExpressionUtil.assignTrigFunction("sin","b","-91",E3);
+//        NaN
+        ExpressionUtil.assignTrigFunction("acos","c","2",E3);
+        System.out.println(ExpressionUtil.Value(E3));
+        System.out.println();
+    }
 
 
 }

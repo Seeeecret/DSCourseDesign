@@ -91,21 +91,27 @@ public class ExpressionUtilTest {
         ExpressionTree E9 = ExpressionUtil.MergeConst(E1);
         ExpressionUtil.WriteExpr(E9);
         System.out.println(ExpressionUtil.Value(E9));
+
         ExpressionTree E10 = ExpressionUtil.MergeConst(E2);
         ExpressionUtil.WriteExpr(E10);
         System.out.println(ExpressionUtil.Value(E10));
+
         ExpressionTree E11 = ExpressionUtil.MergeConst(E3);
         ExpressionUtil.WriteExpr(E11);
         System.out.println(ExpressionUtil.Value(E11));
+
         ExpressionTree E12 = ExpressionUtil.MergeConst(E4);
         ExpressionUtil.WriteExpr(E12);
         System.out.println(ExpressionUtil.Value(E12));
+
         ExpressionTree E13 = ExpressionUtil.MergeConst(E5);
         ExpressionUtil.WriteExpr(E13);
         System.out.println(ExpressionUtil.Value(E13));
+
         ExpressionTree E14 = ExpressionUtil.MergeConst(E6);
         ExpressionUtil.WriteExpr(E14);
         System.out.println(ExpressionUtil.Value(E14));
+
         System.out.println();
     }
     @Test

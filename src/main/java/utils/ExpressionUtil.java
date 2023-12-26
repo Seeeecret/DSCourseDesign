@@ -5,8 +5,9 @@ import collections.MyStack;
 import pojo.Expression;
 import pojo.ExpressionTree;
 import collections.MutableInteger;
-
 import java.util.Scanner;
+
+import static utils.Consts.VARIABLE_DEFAULT_VALUE;
 
 /**
  *
@@ -30,8 +31,9 @@ public class ExpressionUtil {
             return null;
         }
         char[] input = inputString.toCharArray();// 存储输入的字符序列
-        ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E, inputString);
+        ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E);
         ReadExpression(expressionTree, input, index);
+        searchPutVariableNode(expressionTree,expressionTree.getVariableCountMap());
         return expressionTree;
     }
 
@@ -42,8 +44,9 @@ public class ExpressionUtil {
             return null;
         }
         char[] input = inputString.toCharArray();// 存储输入的字符序列
-        ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E, inputString);
+        ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E);
         ReadExpression(expressionTree, input, index);
+        searchPutVariableNode(expressionTree,expressionTree.getVariableCountMap());
         return expressionTree;
     }
 
@@ -62,15 +65,15 @@ public class ExpressionUtil {
         if (Character.isDigit(currentChar)) {
             // 正数，构造常量表达式
             E.op = "#";
-            E.value = Integer.parseInt(Character.toString(currentChar));
+            E.value = Double.parseDouble(Character.toString(currentChar));
         } else if (currentChar == '-' && input.length == 2) {
             // 负数，构造常量表达式
             E.op = "#";
-            E.value = -Integer.parseInt(Character.toString(input[index.increment().getValue()]));
+            E.value = -Double.parseDouble(Character.toString(input[index.increment().getValue()]));
 
         } else if (Character.isAlphabetic(currentChar)) {
             // 变量，构造变量表达式
-            E.value = 0; // 变量的初值为0
+            E.value = VARIABLE_DEFAULT_VALUE; // 变量的初值为0
             E.setOp(String.valueOf(currentChar));
         } else if (isOperator(currentChar)) {
             // 运算符，构造复合表达式
@@ -145,6 +148,17 @@ public class ExpressionUtil {
 //        searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
     }
 
+    private static void searchPutVariableNode(Expression expression, MyHashMap<String,Expression> variableCountMap) {
+        if (expression == null) {
+            return;
+        }
+        if (Character.isAlphabetic(expression.getOp().charAt(0))
+                && expression.getOp().length() == 1) {
+            variableCountMap.put(expression.getOp(),expression);
+        }
+        searchPutVariableNode(expression.left,variableCountMap);
+        searchPutVariableNode(expression.right,variableCountMap);
+    }
     /**
      * 用带括弧的中缀表示式输出表达式E的外部接口
      *
@@ -201,9 +215,10 @@ public class ExpressionUtil {
         if (E == null) {
             return false;
         }
-        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
-        if (variableCountMap.containsKey(Character.toString(V))) {
-            variableCountMap.put(Character.toString(V), (double) c);
+        MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
+        if (variableCountMap.containsKey(Character.toString(V).toLowerCase())) {
+            Expression expression = variableCountMap.get(Character.toString(V).toLowerCase());
+            expression.setValue((double) c);
             return true;
         }
         return false;
@@ -220,9 +235,10 @@ public class ExpressionUtil {
         if (E == null) {
             return false;
         }
-        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
-        if (variableCountMap.containsKey(V)) {
-            variableCountMap.put(V, (double) c);
+        MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
+        if (variableCountMap.containsKey(V.toLowerCase())) {
+            Expression expression = variableCountMap.get(V.toLowerCase());
+            expression.setValue((double) c);
             return true;
         }
         return false;
@@ -255,7 +271,8 @@ public class ExpressionUtil {
             return false;
         }
 //        将哈希表中变量的值设置为inputString的值
-        E.getVariableCountMap().put(V.toLowerCase(), value);
+        Expression expression = E.getVariableCountMap().get(V.toLowerCase());
+        expression.setValue(value);
 //        将变量的左子树替换为操作符为三角函数名的Expression对象，右子树为inputString的Expression对象
         searchReplaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
 
@@ -306,7 +323,7 @@ public class ExpressionUtil {
      * @param variableCountMap 变量哈希表
      * @return int
      */
-    private static double Evaluate(Expression E, MyHashMap<String, Double> variableCountMap) {
+    private static double Evaluate(Expression E, MyHashMap<String, Expression> variableCountMap) {
         if (E == null) {
             return 0;
         }
@@ -318,12 +335,12 @@ public class ExpressionUtil {
             // 变量
 //            情况1:三角函数的情况，下挂表达式的计算值已存放在表达式树的哈希表中,Key仍为变量名
             if (E.left != null && E.right != null) {
-                double originValue = variableCountMap.get(E.op.toLowerCase());
+                double originValue = variableCountMap.get(E.op.toLowerCase()).getValue();
                 String trigFunction = E.left.op;
                 return evaluateTrigFunc(trigFunction, originValue);
             } else {
 //                情况2:普通变量的情况，直接从哈希表中取值
-                return variableCountMap. get(E.op.toLowerCase());
+                return variableCountMap. get(E.op.toLowerCase()).getValue();
             }
         } else {
             // 复合表达式
@@ -390,7 +407,7 @@ public class ExpressionUtil {
         if (E1 == null || E2 == null) {
             return null;
         }
-        MyHashMap<String, Double> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
+        MyHashMap<String, Expression> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
         ExpressionTree expressionTree = new ExpressionTree(newCountMap);
         expressionTree.setOp(Character.toString(P));
         expressionTree.left = E1;

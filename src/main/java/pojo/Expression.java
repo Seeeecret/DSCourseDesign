@@ -9,7 +9,7 @@ public class Expression{
     /**
      * 操作数
      */
-    public Integer value;
+    public Double value;
 
     /**
      * 左右子表达式
@@ -23,7 +23,7 @@ public class Expression{
      * @param left 左子表达式
      * @param right 右子表达式
      */
-    public Expression(String op, int value, Expression left, Expression right) {
+    public Expression(String op, Double value, Expression left, Expression right) {
         this.op = op;
         this.value = value;
         this.left = left;
@@ -48,11 +48,11 @@ public class Expression{
         this.op = op;
     }
 
-    public int getValue() {
+    public Double getValue() {
         return value;
     }
 
-    public void setValue(int value) {
+    public void setValue(Double value) {
         this.value = value;
     }
 
@@ -70,5 +70,12 @@ public class Expression{
 
     public void setRight(Expression right) {
         this.right = right;
+    }
+
+    @Override
+    public String toString() {
+        return "Expression:" +
+                "op='" + op + '\'' +
+                ", value=" + value;
     }
 }

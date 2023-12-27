@@ -5,8 +5,12 @@ import collections.MyStack;
 import pojo.Expression;
 import pojo.ExpressionTree;
 import collections.MutableInteger;
+
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
 
+import static utils.Consts.CONSTANT_DEFAULT_OPERATOR;
 import static utils.Consts.VARIABLE_DEFAULT_VALUE;
 
 /**
@@ -33,7 +37,7 @@ public class ExpressionUtil {
         char[] input = inputString.toCharArray();// 存储输入的字符序列
         ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E);
         ReadExpression(expressionTree, input, index);
-        searchPutVariableNode(expressionTree,expressionTree.getVariableCountMap());
+        searchPutVariableNode(expressionTree, expressionTree.getVariableCountMap());
         return expressionTree;
     }
 
@@ -46,7 +50,7 @@ public class ExpressionUtil {
         char[] input = inputString.toCharArray();// 存储输入的字符序列
         ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E);
         ReadExpression(expressionTree, input, index);
-        searchPutVariableNode(expressionTree,expressionTree.getVariableCountMap());
+        searchPutVariableNode(expressionTree, expressionTree.getVariableCountMap());
         return expressionTree;
     }
 
@@ -64,11 +68,11 @@ public class ExpressionUtil {
         char currentChar = input[index.increment().getValue()];
         if (Character.isDigit(currentChar)) {
             // 正数，构造常量表达式
-            E.op = "#";
+            E.op = CONSTANT_DEFAULT_OPERATOR;
             E.value = Double.parseDouble(Character.toString(currentChar));
         } else if (currentChar == '-' && input.length == 2) {
             // 负数，构造常量表达式
-            E.op = "#";
+            E.op = CONSTANT_DEFAULT_OPERATOR;
             E.value = -Double.parseDouble(Character.toString(input[index.increment().getValue()]));
 
         } else if (Character.isAlphabetic(currentChar)) {
@@ -103,6 +107,36 @@ public class ExpressionUtil {
         ReadExpression(E.right, input, index);
     }
 
+    /**
+     * 从哈希表中查找目标变量，将其左子树设置为三角函数名，右子树设置为三角函数的子树
+     *
+     * @param trigFuc       三角函数
+     * @param newExpression 新表达式
+     * @param targetTree    目标表达式树
+     * @param targetOp      目标变量名
+     */
+    private static void replaceTargetNode(String trigFuc, Expression newExpression, ExpressionTree targetTree, String targetOp) {
+        if (targetTree == null || newExpression == null) {
+            return;
+        }
+        MyHashMap<String, Expression> variableCountMap = targetTree.getVariableCountMap();
+        if (variableCountMap.containsKey(targetOp.toLowerCase())) {
+            Expression expression = variableCountMap.get(targetOp);
+            expression.right = newExpression;
+            expression.left = new Expression();
+            expression.left.setOp(trigFuc);
+        }
+    }
+
+    /**
+     * 搜索替换目标节点为相应的三角函数形式
+     *
+     * @param trigFuc       三角fuc
+     * @param newExpression 新表达方式
+     * @param targetTree    目标树
+     * @param targetOp      目标op
+     */
+    @Deprecated
     private static void searchReplaceTargetNode(String trigFuc, Expression newExpression, Expression targetTree, String targetOp) {
 //        是无效输入
         if (newExpression == null || targetTree == null) {
@@ -148,17 +182,162 @@ public class ExpressionUtil {
 //        searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
     }
 
-    private static void searchPutVariableNode(Expression expression, MyHashMap<String,Expression> variableCountMap) {
+    /**
+     * 对表达式中的变量V进行求导功能的外部接口
+     *
+     * @param E e
+     * @param V v
+     */
+    public static void Diff(ExpressionTree E, String V) {
+//        首先进行输入判断
+        if (E == null || V == null || V.isEmpty()) {
+            System.out.println("Invalid input");
+            return;
+        }
+//        从表达式树对象的哈希表中搜索变量节点检查是否存在相应变量
+        MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
+        if (!variableCountMap.containsKey(V.toLowerCase())) {
+            System.out.println("Invalid variable");
+            return;
+        }
+//        输入检查结束,对表达式树中的变量V进行有条件的求导
+        MergeConst(E);
+        differentiateConstant(E, V, variableCountMap);
+        differentiateVariable(E, E, V);
+//        differentiate(E, E.right, V);
+    }
+
+    /**
+     * 对表达式中的常数和非求导变量进行求导的功能方法。在对表达式进行合并常数操作后执行这个方法，可以确保表达式树中不会存在全是常数节点的子树
+     * 即表达式树中符号节点的左右子树不会同时为常数节点
+     *
+     * @param E e
+     * @return boolean
+     */
+    private static boolean differentiateConstant(Expression E, String V, MyHashMap<String, Expression> variableCountMap) {
+//        如果当前表达式的操作符为符号中的"*"或"/"或"^"号，则不做处理
+/*        if(E.op.equals("*") || E.op.equals("/") || E.op.equals("^")){
+            return false;
+        }*/
+        if (E == null) {
+            return false;
+        }
+        V = V.toLowerCase();
+//        递归遍历左右子树
+        differentiateConstant(E.left, V, variableCountMap);
+        differentiateConstant(E.right, V, variableCountMap);
+//        如果当前表达式的操作符为符号中的"+"或"-"号，则将当前表达式的左右子树中的常数节点或非求导变量的值置为0
+        if (E.op.equals("+") || E.op.equals("-")) {
+            if (E.left.op.equals("#")) {
+//                为常量
+                E.left.value = 0.0;
+            } else if (Character.isAlphabetic(E.left.op.charAt(0)) && !E.left.op.equals(V)) {
+//                为非求导变量
+                E.left.value = 0.0;
+                E.left.op = "#";
+                variableCountMap.remove(E.left.op);
+            }
+
+            if (E.right.op.equals("#")) {
+//                为常量
+                E.right.value = 0.0;
+            } else if (Character.isAlphabetic(E.right.op.charAt(0)) && !E.right.op.equals(V)) {
+//                为非求导变量
+                E.right.value = 0.0;
+                E.right.op = "#";
+                variableCountMap.remove(E.right.op);
+            }
+            return true;
+        }
+        if (E.op.equals("*")) {
+            if (Character.isAlphabetic(E.left.op.charAt(0)) && !E.left.op.equals(V)
+                    && Character.isAlphabetic(E.right.op.charAt(0)) && !E.right.op.equals(V)) {
+//                左右子树均为非求导变量
+                variableCountMap.remove(E.left.op);
+                variableCountMap.remove(E.right.op);
+                E.left = null;
+                E.right = null;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 对表达式中的偏导变量进行求导的功能方法
+     *
+     * @param fatherExpression 父亲表情
+     * @param E                e
+     * @param V                v
+     * @return boolean
+     */
+    private static boolean differentiateVariable(Expression fatherExpression, Expression E, String V) {
+        if (E == null) {
+            return false;
+        }
+//        对于表达式树本身只有一个变量，即fatherExpression的操作符为变量名，且左右子树为空的情况进行特判
+        if (fatherExpression.op.equals(V.toLowerCase()) && fatherExpression.left == null && fatherExpression.right == null && E.equals(fatherExpression)) {
+            fatherExpression.op = CONSTANT_DEFAULT_OPERATOR;
+            fatherExpression.value = 1.0;
+            return true;
+        }
+
+//        如果当前表达式的操作符为变量名，即变量名与输入的变量名相同，则对当前表达式进行求导
+//        后期会保证求导变量的父节点的右子节点只有常数，所以当左子节点为变量，父子节点为"^"时，便不再需要遍历右子树
+        if (differentiateVariable(E, E.left, V)) {
+            return false;
+        } else {
+            differentiateVariable(E, E.right, V);
+        }
+        if (E.op.equals(V.toLowerCase())) {
+            switch (fatherExpression.op) {
+                case "+":
+                case "-":
+                case "*":
+                case "/":
+                    E.op = CONSTANT_DEFAULT_OPERATOR;
+                    E.value = 1.0;
+                    break;
+                case "^":
+//                    将父表达式的操作符改为"*"
+                    fatherExpression.op = "*";
+//                    同时父表达式的左右子树互换
+                    Expression temp = fatherExpression.left;
+                    fatherExpression.left = fatherExpression.right;
+                    fatherExpression.right = temp;
+//                    原来的指数为现在父表达式的左子树的值
+                    Double index = fatherExpression.left.value;
+//                    将原来的需要求导的变量表达式，即父表达式的右子树E，替换为求导后的表达式树
+                    E.op = "^";
+                    E.left = new Expression(V, E.value);
+                    E.right = new Expression(CONSTANT_DEFAULT_OPERATOR, index - 1);
+                    return true;
+                default:
+                    break;
+            }
+        }
+        return false;
+
+    }
+
+
+    /**
+     * 从表达式树中搜索变量节点，将其存入哈希表中
+     *
+     * @param expression       表达式
+     * @param variableCountMap 哈希表
+     */
+    private static void searchPutVariableNode(Expression expression, MyHashMap<String, Expression> variableCountMap) {
         if (expression == null) {
             return;
         }
         if (Character.isAlphabetic(expression.getOp().charAt(0))
                 && expression.getOp().length() == 1) {
-            variableCountMap.put(expression.getOp(),expression);
+            variableCountMap.put(expression.getOp(), expression);
         }
-        searchPutVariableNode(expression.left,variableCountMap);
-        searchPutVariableNode(expression.right,variableCountMap);
+        searchPutVariableNode(expression.left, variableCountMap);
+        searchPutVariableNode(expression.right, variableCountMap);
     }
+
     /**
      * 用带括弧的中缀表示式输出表达式E的外部接口
      *
@@ -197,11 +376,122 @@ public class ExpressionUtil {
     /**
      * 判断字符是否是运算符
      *
-     * @param c
+     * @param c 操作符
      * @return boolean
      */
     private static boolean isOperator(char c) {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
+    }
+
+    private static boolean isMergeOperator(char c) {
+        return c == '+' || c == '-' || c == '*';
+    }
+
+    private static boolean MergeExpression(Expression E) {
+        if (E.left == null || E.right == null) {
+            return false;
+        }
+        String ans = E.containsConstantsSon();
+        if (null != ans) {
+            String ERight = E.right.containsConstantsSon();
+            String ELeft = E.left.containsConstantsSon();
+//            表达式E的左子树有常数，右子树的左子树有常数
+            if ("left".equals(ans) && "left".equals(ERight)) {
+//                表达式E的计算符号,表达式E的右子树的计算符号
+                String EOp = E.op;
+                String ERightOp = E.right.op;
+                if (EOp.equals(ERightOp)) {
+                    switch (EOp) {
+                        case "+":
+                            E.left.value = E.left.value + E.right.left.value;
+                            break;
+                        case "-":
+                            E.left.value = E.left.value - E.right.left.value;
+                            E.op = "+";
+                            break;
+                        case "*":
+                            E.left.value = E.left.value * E.right.left.value;
+                            break;
+                        default:
+                            break;
+                    }
+                    E.right = E.right.right;
+                    return true;
+                }
+                return true;
+            } else if ("left".equals(ans) && "right".equals(ERight)) {
+//                表达式E的计算符号,表达式的左子树的计算符号
+                String EOp = E.op;
+                String ERightOp = E.right.op;
+                if (EOp.equals(ERightOp)) {
+                    switch (EOp) {
+                        case "+":
+                            E.left.value = E.left.value + E.right.right.value;
+                            break;
+                        case "-":
+                            E.left.value = E.left.value + E.right.right.value;
+                            break;
+                        case "*":
+                            E.left.value = E.left.value * E.right.right.value;
+                            break;
+                        default:
+                            break;
+                    }
+                    E.right = E.right.left;
+                    return true;
+                }
+            } else if ("right".equals(ans) && "left".equals(ELeft)) {
+                String EOp = E.op;
+                String ELeftOp = E.left.op;
+                if (EOp.equals(ELeftOp)) {
+                    switch (EOp) {
+                        case "+":
+                            E.right.value = E.right.value + E.left.left.value;
+                            E.left = E.left.right;
+                            break;
+                        case "-":
+                            E.left.left.value = E.left.left.value - E.right.value;
+                            E.right = E.left.right;
+                            E.left = E.left.left;
+                            break;
+                        case "*":
+                            E.right.value = E.right.value * E.left.left.value;
+                            E.left = E.left.right;
+                            break;
+                        default:
+                            break;
+                    }
+                    return true;
+
+                }
+            } else if ("right".equals(ans) && "right".equals(ELeft)) {
+                String EOp = E.op;
+                String ELeftOp = E.left.op;
+                if (EOp.equals(ELeftOp)) {
+                    switch (EOp) {
+                        case "+":
+                            E.right.value = E.right.value + E.left.right.value;
+                            E.left = E.left.left;
+                            break;
+                        case "-":
+                            E.right.value = E.left.right.value + E.right.value;
+                            E.left = E.left.right;
+                            break;
+                        case "*":
+                            E.right.value = E.right.value * E.left.right.value;
+                            E.left = E.left.left;
+                            break;
+                        default:
+                            break;
+                    }
+                    return true;
+                }
+
+            }
+
+
+        }
+        return false;
     }
 
     /**
@@ -219,6 +509,9 @@ public class ExpressionUtil {
         if (variableCountMap.containsKey(Character.toString(V).toLowerCase())) {
             Expression expression = variableCountMap.get(Character.toString(V).toLowerCase());
             expression.setValue((double) c);
+//            空置左右子树，以抹除可能存在的三角函数子树
+            expression.left = null;
+            expression.right = null;
             return true;
         }
         return false;
@@ -239,6 +532,9 @@ public class ExpressionUtil {
         if (variableCountMap.containsKey(V.toLowerCase())) {
             Expression expression = variableCountMap.get(V.toLowerCase());
             expression.setValue((double) c);
+//            空置左右子树，以抹除可能存在的三角函数子树
+            expression.left = null;
+            expression.right = null;
             return true;
         }
         return false;
@@ -266,7 +562,7 @@ public class ExpressionUtil {
 //        计算inputString的值
         double value = evaluatePrefixExpression(inputString);
 //        如果计算结果为NaN，说明输入的表达式不合法
-        if (Double.isNaN(evaluateTrigFunc(trigFunction,value))) {
+        if (Double.isNaN(evaluateTrigFunc(trigFunction, value))) {
             System.out.println("Invalid input");
             return false;
         }
@@ -274,8 +570,8 @@ public class ExpressionUtil {
         Expression expression = E.getVariableCountMap().get(V.toLowerCase());
         expression.setValue(value);
 //        将变量的左子树替换为操作符为三角函数名的Expression对象，右子树为inputString的Expression对象
-        searchReplaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
-
+//        searchReplaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
+        replaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
         return true;
 //        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
 //        if (!variableCountMap.containsKey(V.toLowerCase())) {
@@ -340,7 +636,7 @@ public class ExpressionUtil {
                 return evaluateTrigFunc(trigFunction, originValue);
             } else {
 //                情况2:普通变量的情况，直接从哈希表中取值
-                return variableCountMap. get(E.op.toLowerCase()).getValue();
+                return variableCountMap.get(E.op.toLowerCase()).getValue();
             }
         } else {
             // 复合表达式
@@ -427,9 +723,12 @@ public class ExpressionUtil {
      * @param E e
      */
     public static void MergeConstParameter(Expression E) {
+        if (E == null) {
+            return;
+        }
         if ("#".equals(E.op) || Character.isAlphabetic(E.op.charAt(0))
                 && E.op.length() == 1) {
-            // 常量或变量，不需要合并
+            // 表达式为常量或变量，不需要合并
             return;
         } else {
             // 复合表达式
@@ -444,10 +743,14 @@ public class ExpressionUtil {
                 E.op = "#"; // 将操作符清空，表示这是一个常数节点
                 E.left = E.right = null; // 清空左右子表达式
             }
-
+//            如果当前节点的运算符和左或右子节点中的运算符相同且为("*""-""+")中的一种，同时当前节点和其运算符相同的子节点的子节点中有一个为常数节点
+            if (isMergeOperator(E.op.charAt(0)) && MergeExpression(E)){
+                    System.out.println("深层合并成功");
+                }
         }
 
     }
+
 
     /**
      * 应用操作符到两个常数上
@@ -539,5 +842,47 @@ public class ExpressionUtil {
         }
 
         return operandStack.pop();
+    }
+
+
+    public static void printExpressionLevelOrder(Expression root) {
+        if (root == null) {
+            System.out.println("Expression is empty.");
+            return;
+        }
+
+        Queue<Expression> queue = new LinkedList<>();
+        queue.add(root);
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+
+            for (int i = 0; i < size; i++) {
+                Expression current = queue.poll();
+
+                // 打印当前节点的值
+                if (current.op.equals("#")) {
+                    System.out.print(current.value);
+                } else {
+                    System.out.print(current.op);
+                }
+
+                // 将左右子节点加入队列
+                if (current.left != null) {
+                    queue.add(current.left);
+                }
+                if (current.right != null) {
+                    queue.add(current.right);
+                }
+
+                // 添加逗号分隔符（除了最后一个节点）
+                if (i < size - 1) {
+                    System.out.print(", ");
+                }
+            }
+
+            // 换行
+            System.out.println();
+        }
     }
 }

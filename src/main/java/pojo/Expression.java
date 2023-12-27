@@ -30,6 +30,19 @@ public class Expression{
         this.right = right;
     }
 
+
+    /**
+     * 左右子树置空的构造函数
+     * @param op 操作符
+     * @param value 操作数
+     */
+    public Expression(String op, Double value) {
+        this.op = op;
+        this.value = value;
+        this.left = null;
+        this.right = null;
+    }
+
     /**
      * 空构造函数
      */
@@ -70,6 +83,18 @@ public class Expression{
 
     public void setRight(Expression right) {
         this.right = right;
+    }
+
+    public String containsConstantsSon() {
+//        左边有常数,右边没有
+        if (this.left != null && "#".equals(this.left.op) && this.right != null && !"#".equals(this.right.op)) {
+            return "left";
+        }
+//        右边有常数,左边没有
+        else if (this.right != null && "#".equals(this.right.op) && this.left != null && !"#".equals(this.left.op)) {
+            return "right";
+        }
+        return null;
     }
 
     @Override

@@ -744,9 +744,66 @@ public class ExpressionUtil {
                 E.left = E.right = null; // 清空左右子表达式
             }
 //            如果当前节点的运算符和左或右子节点中的运算符相同且为("*""-""+")中的一种，同时当前节点和其运算符相同的子节点的子节点中有一个为常数节点
-            if (isMergeOperator(E.op.charAt(0)) && MergeExpression(E)){
-                    System.out.println("深层合并成功");
-                }
+            if (isMergeOperator(E.op.charAt(0)) && MergeExpression(E)) {
+                System.out.println("深层合并成功");
+            }
+            switch (E.op.charAt(0)) {
+                case '+':
+                    if ("#".equals(E.left.op) && E.left.value == 0) {
+                        E.op = E.right.op;
+                        E.value = E.right.value;
+                        E.left = E.right.left;
+                        E.right = E.right.right;
+                    } else if ("#".equals(E.right.op) && E.right.value == 0) {
+                        E.op = E.left.op;
+                        E.value = E.left.value;
+                        E.right = E.left.right;
+                        E.left = E.left.left;
+                    }
+                    break;
+                case '-':
+                    if ("#".equals(E.right.op) && E.right.value == 0) {
+                        E.op = E.left.op;
+                        E.value = E.left.value;
+                        E.right = E.left.right;
+                        E.left = E.left.left;
+                    }
+                    break;
+                case '*':
+                    if ("#".equals(E.left.op) && E.left.value == 0) {
+                        E.op = "#";
+                        E.value = 0.0;
+                        E.left = E.right = null;
+                    } else if ("#".equals(E.right.op) && E.right.value == 0) {
+                        E.op = "#";
+                        E.value = 0.0;
+                        E.left = E.right = null;
+                    } else if ("#".equals(E.left.op) && E.left.value == 1) {
+                        E.op = E.right.op;
+                        E.value = E.right.value;
+                        E.left = E.right.left;
+                        E.right = E.right.right;
+                    } else if ("#".equals(E.right.op) && E.right.value == 1) {
+                        E.op = E.left.op;
+                        E.value = E.left.value;
+                        E.right = E.left.right;
+                        E.left = E.left.left;
+                    }
+                    break;
+                case '/':
+                    if ("#".equals(E.left.op) && E.left.value == 0) {
+                        E.op = "#";
+                        E.value = 0.0;
+                        E.left = E.right = null;
+                    } else if ("#".equals(E.right.op) && E.right.value == 1) {
+                        E.op = E.left.op;
+                        E.value = E.left.value;
+                        E.right = E.left.right;
+                        E.left = E.left.left;
+                    }
+                    break;
+                case '^':
+                    if ("#".equals(E
         }
 
     }

@@ -1,17 +1,17 @@
-package utils;
+package org.example.utils;
 
-import collections.MyHashMap;
-import collections.MyStack;
-import pojo.Expression;
-import pojo.ExpressionTree;
-import collections.MutableInteger;
+import org.example.collections.MyHashMap;
+import org.example.collections.MyStack;
+import org.example.pojo.Expression;
+import org.example.pojo.ExpressionTree;
+import org.example.collections.MutableInteger;
 
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
-import static utils.Consts.CONSTANT_DEFAULT_OPERATOR;
-import static utils.Consts.VARIABLE_DEFAULT_VALUE;
+import static org.example.utils.Consts.CONSTANT_DEFAULT_OPERATOR;
+import static org.example.utils.Consts.VARIABLE_DEFAULT_VALUE;
 
 /**
  *

@@ -1,6 +1,7 @@
-import pojo.Expression;
-import pojo.ExpressionTree;
-import utils.ExpressionUtil;
+package org.example;
+
+import org.example.pojo.Expression;
+import org.example.utils.ExpressionUtil;
 
 /*题目9  表达式类型的实现（难度系数：1.2）
 [问题描述]

@@ -1,4 +1,4 @@
-package collections;
+package org.example.collections;
 /**
  * 定义一个哈希表类，包含一个节点数组，一个大小和一个阈值。
  *

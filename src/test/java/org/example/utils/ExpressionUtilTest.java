@@ -1,14 +1,10 @@
-package utils;
+package org.example.utils;
 
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 
-import pojo.Expression;
-import pojo.ExpressionTree;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.example.pojo.Expression;
+import org.example.pojo.ExpressionTree;
 
 public class ExpressionUtilTest {
     ExpressionTree E1;

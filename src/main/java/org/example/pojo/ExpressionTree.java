@@ -1,8 +1,6 @@
-package pojo;
+package org.example.pojo;
 
-import collections.MyHashMap;
-
-import static utils.Consts.*;
+import org.example.collections.MyHashMap;
 
 public class ExpressionTree extends Expression {
     /**

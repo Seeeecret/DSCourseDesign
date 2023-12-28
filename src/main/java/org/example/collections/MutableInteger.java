@@ -1,4 +1,4 @@
-package collections;
+package org.example.collections;
 
 public class MutableInteger {
     private int value;

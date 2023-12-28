@@ -160,7 +160,7 @@ public class ExpressionUtilTest {
     public void testDiff() {
         System.out.println("testDiff:");
         ExpressionUtil.Diff(E1, "x");
-        ExpressionUtil.MergeConst(E1);
+        E1 = ExpressionUtil.MergeConst(E1);
         ExpressionUtil.WriteExpr(E1);
         System.out.println(ExpressionUtil.Value(E1));
 //        ExpressionUtil.printExpressionLevelOrder(E1);
@@ -169,19 +169,19 @@ public class ExpressionUtilTest {
 //        ExpressionUtil.printExpressionTree(E1, 0);
 
         ExpressionUtil.Diff(E2, "x");
-        ExpressionUtil.MergeConst(E2);
+        E2 = ExpressionUtil.MergeConst(E2);
         ExpressionUtil.WriteExpr(E2);
         System.out.println(ExpressionUtil.Value(E2));
 //        ExpressionUtil.printExpressionTree(E2, 0);
 
         ExpressionUtil.Diff(E3, "a");
-        ExpressionUtil.MergeConst(E2);
+        E3 = ExpressionUtil.MergeConst(E3);
         ExpressionUtil.WriteExpr(E3);
         System.out.println(ExpressionUtil.Value(E3));
 //        ExpressionUtil.printExpressionTree(E3, 0);
 
         ExpressionUtil.Diff(E7, "x");
-        ExpressionUtil.MergeConst(E2);
+        E7 = ExpressionUtil.MergeConst(E7);
         ExpressionUtil.WriteExpr(E7);
         System.out.println(ExpressionUtil.Value(E7));
 //        ExpressionUtil.printExpressionLevelOrder(E7);
@@ -192,5 +192,36 @@ public class ExpressionUtilTest {
 
     }
 
+    @Test
+    public void testDiff2() {
+        System.out.println("testDiff2:");
+        ExpressionUtil.Diff2(E1, "x");
+        ExpressionUtil.WriteExpr(E1);
+        System.out.println(ExpressionUtil.Value(E1));
+//        ExpressionUtil.printExpressionLevelOrder(E1);
+//        ExpressionUtil.printExpressionTree3(E1,0);
+//        ExpressionUtil.printExpressionTree2(E1,0);
+//        ExpressionUtil.printExpressionTree(E1, 0);
+
+        ExpressionUtil.Diff2(E2, "x");
+        ExpressionUtil.WriteExpr(E2);
+        System.out.println(ExpressionUtil.Value(E2));
+//        ExpressionUtil.printExpressionTree(E2, 0);
+
+        ExpressionUtil.Diff2(E3, "a");
+        ExpressionUtil.WriteExpr(E3);
+        System.out.println(ExpressionUtil.Value(E3));
+//        ExpressionUtil.printExpressionTree(E3, 0);
+
+        ExpressionUtil.Diff2(E7, "x");
+        ExpressionUtil.WriteExpr(E7);
+        System.out.println(ExpressionUtil.Value(E7));
+//        ExpressionUtil.printExpressionLevelOrder(E7);
+//        ExpressionUtil.printExpressionTree3(E7,0);
+//        ExpressionUtil.printExpressionTree2(E7,0);
+//        ExpressionUtil.printExpressionTree(E7, 0);
+        System.out.println();
+
+    }
 
 }

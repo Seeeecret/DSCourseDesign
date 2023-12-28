@@ -207,6 +207,23 @@ public class ExpressionUtil {
 //        differentiate(E, E.right, V);
     }
 
+    public static void Diff2(ExpressionTree E, String V) {
+        //        首先进行输入判断
+        if (E == null || V == null || V.isEmpty()) {
+            System.out.println("Invalid input");
+            return;
+        }
+//        从表达式树对象的哈希表中搜索变量节点检查是否存在相应变量
+        MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
+        if (!variableCountMap.containsKey(V.toLowerCase())) {
+            System.out.println("Invalid variable");
+            return;
+        }
+        MergeConst(E);
+        differentiate(E, V);
+        MergeConst(E);
+    }
+
     /**
      * 对表达式中的常数和非求导变量进行求导的功能方法。在对表达式进行合并常数操作后执行这个方法，可以确保表达式树中不会存在全是常数节点的子树
      * 即表达式树中符号节点的左右子树不会同时为常数节点
@@ -255,8 +272,10 @@ public class ExpressionUtil {
 //                左右子树均为非求导变量
                 variableCountMap.remove(E.left.op);
                 variableCountMap.remove(E.right.op);
-                E.left = null;
-                E.right = null;
+                E.left.setOp("#");
+                E.right.setOp("#");
+                E.left.setValue(0.0);
+                E.right.setValue(0.0);
             }
         }
         return false;
@@ -319,6 +338,80 @@ public class ExpressionUtil {
 
     }
 
+    public static Expression differentiate(Expression E, String V) {
+        if (E == null) {
+            return null;
+        }
+        V = V.toLowerCase();
+//        递归遍历左右子树
+//        表达式只有一个变量，且变量为求导变量的情况
+        if (E.op.toLowerCase().equals(V) && E.left == null && E.right == null) {
+            E.op = CONSTANT_DEFAULT_OPERATOR;
+            E.value = 1.0;
+            return E;
+        } else if (E.op.equals("#")) {
+//            表达式为常数的情况
+            E.op = CONSTANT_DEFAULT_OPERATOR;
+            E.value = 0.0;
+            return E;
+        }
+//        表达式为运算符或其他变量时
+        switch (E.op) {
+            case "+":
+//                (u + v)'= u' + v'
+                E.op = "+";
+                E.left = differentiate(E.left, V);
+                E.right = differentiate(E.right, V);
+                break;
+            case "-":
+//                (u - v)'= u' - v'
+                E.op = "-";
+                E.left = differentiate(E.left, V);
+                E.right = differentiate(E.right, V);
+                break;
+            case "*":
+//                (u * v)'= u' * v + u * v'
+                E.op = "+";
+                Expression left = new Expression("*", null, differentiate(E.left, V), new Expression(E.right));
+                Expression right = new Expression("*", null, new Expression(E.left), differentiate(E.right, V));
+                E.left = left;
+                E.right = right;
+                break;
+            case "^":
+//               (x ^ a)' = a * x ^ (a - 1)
+                if (E.left.op.toLowerCase().equals(V)) {
+                    double index = E.right.value;
+                    if (index == 0) {
+                        E.op = CONSTANT_DEFAULT_OPERATOR;
+                        E.value = 0.0;
+                        E.left = null;
+                        E.right = null;
+                        return E;
+                    } else if (index == 1) {
+                        E.op = CONSTANT_DEFAULT_OPERATOR;
+                        E.value = 1.0;
+                        E.left = null;
+                        E.right = null;
+                        return E;
+                    } else {
+                        E.op = "*";
+                        E.left = new Expression(CONSTANT_DEFAULT_OPERATOR, index);
+                        E.right = new Expression("^", null, new Expression(V, VARIABLE_DEFAULT_VALUE), new Expression(CONSTANT_DEFAULT_OPERATOR, index - 1));
+                    }
+                } else {
+//                    非变量的情况
+                    E.op = CONSTANT_DEFAULT_OPERATOR;
+                    E.value = 0.0;
+                    E.left = E.right = null;
+                }
+                break;
+            default:
+                E.op = CONSTANT_DEFAULT_OPERATOR;
+                E.value = 0.0;
+                E.left = E.right = null;
+        }
+        return E;
+    }
 
     /**
      * 从表达式树中搜索变量节点，将其存入哈希表中
@@ -712,7 +805,61 @@ public class ExpressionUtil {
     }
 
     public static ExpressionTree MergeConst(ExpressionTree E) {
-        MergeConstParameter(E);
+        if (E == null) {
+            return null;
+        }
+//        判断头结点的左右子树是否有特殊可化简情况
+
+        if (E.left != null && E.right != null && (E.left.op.equals("#") || E.right.op.equals("#"))) {
+            switch (E.op.charAt(0)) {
+                case '+':
+                    if (E.left.op.equals("#") && E.left.value == 0) {
+//                        头结点的左子树为常数且值为0
+                        E = new ExpressionTree(E.right, E.getVariableCountMap());
+                    } else if (E.right.op.equals("#") && E.right.value == 0) {
+//                        头结点的右子树为常数且值为0
+                        E = new ExpressionTree(E.left, E.getVariableCountMap());
+                    }
+                    break;
+                case '-':
+                    if (E.right.op.equals("#") && E.right.value == 0) {
+//                            头结点的右子树为常数且值为0
+                        E = new ExpressionTree(E.left, E.getVariableCountMap());
+                    } else if (E.left.op.equals("#") && E.left.value == 0) {
+//                            头结点的左子树为常数且值为0
+//                            TODO:该情况待处理
+                    }
+                    break;
+                case '*':
+                    if ((E.left.op.equals("#") && E.left.value == 0) || (E.right.op.equals("#") && E.right.value == 0)) {
+//                            头结点的左右子树之一为常数且值为0
+                        E.getVariableCountMap().clear();
+                        E.setOp("#");
+                        E.setValue(0.0);
+                    } else if (E.left.op.equals("#") && E.left.value == 1) {
+//                            头结点的左子树为常数且值为1
+                        E = new ExpressionTree(E.right, E.getVariableCountMap());
+                    } else if (E.right.op.equals("#") && E.right.value == 1) {
+//                            头结点的右子树为常数且值为1
+                        E = new ExpressionTree(E.left, E.getVariableCountMap());
+                    }
+                    break;
+                case '/':
+                case '^':
+                    if (E.left.op.equals("#") && E.left.value == 0) {
+//                            头结点的左子树为常数且值为0
+                        E.getVariableCountMap().clear();
+                        E.setOp("#");
+                        E.setValue(0.0);
+                    } else if (E.right.op.equals("#") && E.right.value == 1) {
+//                            头结点的右子树为常数且值为1
+                        E = new ExpressionTree(E.left, E.getVariableCountMap());
+                    }
+
+            }
+        }
+
+        MergeConstParameter(E, E);
         return E;
     }
 
@@ -722,8 +869,11 @@ public class ExpressionUtil {
      *
      * @param E e
      */
-    public static void MergeConstParameter(Expression E) {
+    public static void MergeConstParameter(Expression fatherExpression, Expression E) {
         if (E == null) {
+            return;
+        }
+        if (E.left == null && E.right == null) {
             return;
         }
         if ("#".equals(E.op) || Character.isAlphabetic(E.op.charAt(0))
@@ -734,8 +884,8 @@ public class ExpressionUtil {
             // 复合表达式
 
             // 递归合并左右子表达式
-            MergeConstParameter(E.left);
-            MergeConstParameter(E.right);
+            MergeConstParameter(E, E.left);
+            MergeConstParameter(E, E.right);
 
             // 如果左右子表达式都是常数，合并常数运算
             if ("#".equals(E.left.op) && "#".equals(E.right.op)) {
@@ -743,69 +893,91 @@ public class ExpressionUtil {
                 E.op = "#"; // 将操作符清空，表示这是一个常数节点
                 E.left = E.right = null; // 清空左右子表达式
             }
-//            如果当前节点的运算符和左或右子节点中的运算符相同且为("*""-""+")中的一种，同时当前节点和其运算符相同的子节点的子节点中有一个为常数节点
+//            如果当前节点的运算符和左或右子节点中的运算符相同且为("*""-""+""/""^")中的一种，同时当前节点和其运算符相同的子节点的子节点中有一个为常数节点
             if (isMergeOperator(E.op.charAt(0)) && MergeExpression(E)) {
                 System.out.println("深层合并成功");
             }
-            switch (E.op.charAt(0)) {
-                case '+':
-                    if ("#".equals(E.left.op) && E.left.value == 0) {
-                        E.op = E.right.op;
-                        E.value = E.right.value;
-                        E.left = E.right.left;
-                        E.right = E.right.right;
-                    } else if ("#".equals(E.right.op) && E.right.value == 0) {
-                        E.op = E.left.op;
-                        E.value = E.left.value;
-                        E.right = E.left.right;
-                        E.left = E.left.left;
-                    }
-                    break;
-                case '-':
-                    if ("#".equals(E.right.op) && E.right.value == 0) {
-                        E.op = E.left.op;
-                        E.value = E.left.value;
-                        E.right = E.left.right;
-                        E.left = E.left.left;
-                    }
-                    break;
-                case '*':
-                    if ("#".equals(E.left.op) && E.left.value == 0) {
-                        E.op = "#";
-                        E.value = 0.0;
-                        E.left = E.right = null;
-                    } else if ("#".equals(E.right.op) && E.right.value == 0) {
-                        E.op = "#";
-                        E.value = 0.0;
-                        E.left = E.right = null;
-                    } else if ("#".equals(E.left.op) && E.left.value == 1) {
-                        E.op = E.right.op;
-                        E.value = E.right.value;
-                        E.left = E.right.left;
-                        E.right = E.right.right;
-                    } else if ("#".equals(E.right.op) && E.right.value == 1) {
-                        E.op = E.left.op;
-                        E.value = E.left.value;
-                        E.right = E.left.right;
-                        E.left = E.left.left;
-                    }
-                    break;
-                case '/':
-                    if ("#".equals(E.left.op) && E.left.value == 0) {
-                        E.op = "#";
-                        E.value = 0.0;
-                        E.left = E.right = null;
-                    } else if ("#".equals(E.right.op) && E.right.value == 1) {
-                        E.op = E.left.op;
-                        E.value = E.left.value;
-                        E.right = E.left.right;
-                        E.left = E.left.left;
-                    }
-                    break;
-                case '^':
-                    if ("#".equals(E
-        }
+            if (E.left != null && E.right != null) {
+                switch (E.op.charAt(0)) {
+                    case '+':
+                        if ("#".equals(E.left.op) && E.left.value == 0) {
+                            //                    当前节点为"+"，左节点为常数且值为0
+                            if (E.isLeftSonOf(fatherExpression)) {
+                                //                            若当前节点为父节点的左子节点
+                                fatherExpression.left = E.right;
+                            } else {
+                                //                            若当前节点为父节点的右子节点
+                                fatherExpression.right = E.right;
+                            }
+                        } else if ("#".equals(E.right.op) && E.right.value == 0) {
+                            //                        当前节点为"+"，右节点为常数且值为0
+                            if (E.isLeftSonOf(fatherExpression)) {
+                                //                            若当前节点为父节点的左子节点
+                                fatherExpression.left = E.left;
+                            } else {
+                                //                            若当前节点为父节点的右子节点
+                                fatherExpression.right = E.left;
+                            }
+                        }
+                        break;
+                    case '-':
+                        if ("#".equals(E.right.op) && E.right.value == 0) {
+//                            当前节点为"-"，右节点为常数且值为0
+                            if (E.isLeftSonOf(fatherExpression)) {
+//                            若当前节点为父节点的左子节点
+                                fatherExpression.left = E.left;
+                            } else {
+//                            若当前节点为父节点的右子节点
+                                fatherExpression.right = E.left;
+                            }
 
+                        } else if ("#".equals(E.left.op) && E.left.value == 0) {
+//                            当前节点为"-"，左节点为常数且值为0
+//                           TODO:该情况待处理
+
+                        }
+                        break;
+                    case '*':
+                        if ("#".equals(E.left.op) && E.left.value == 0) {
+//                            当前节点为"*"，左节点为常数且值为0
+                            E.op = "#";
+                            E.value = 0.0;
+                            E.left = E.right = null;
+                        } else if ("#".equals(E.right.op) && E.right.value == 0) {
+//                            当前节点为"*"，右节点为常数且值为0
+                            E.op = "#";
+                            E.value = 0.0;
+                            E.left = E.right = null;
+                        } else if ("#".equals(E.left.op) && E.left.value == 1) {
+//                            当前节点为"*"，左节点为常数且值为1
+                            E.op = E.right.op;
+                            E.value = E.right.value;
+                            E.left = E.right.left;
+                            E.right = E.right.right;
+                        } else if ("#".equals(E.right.op) && E.right.value == 1) {
+//                            当前节点为"*"，右节点为常数且值为1
+                            E.op = E.left.op;
+                            E.value = E.left.value;
+                            E.right = E.left.right;
+                            E.left = E.left.left;
+                        }
+                        break;
+                    case '/':
+                    case '^':
+                        if ("#".equals(E.left.op) && E.left.value == 0) {
+                            E.op = "#";
+                            E.value = 0.0;
+                            E.left = E.right = null;
+                        } else if ("#".equals(E.right.op) && E.right.value == 1) {
+                            E.op = E.left.op;
+                            E.value = E.left.value;
+                            E.right = E.left.right;
+                            E.left = E.left.left;
+                        }
+                        break;
+                }
+            }
+        }
     }
 
 

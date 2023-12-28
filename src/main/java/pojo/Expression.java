@@ -30,6 +30,12 @@ public class Expression{
         this.right = right;
     }
 
+    public Expression(Expression E) {
+        this.op = E.op;
+        this.value = E.value;
+        this.left = E.left;
+        this.right = E.right;
+    }
 
     /**
      * 左右子树置空的构造函数
@@ -97,6 +103,12 @@ public class Expression{
         return null;
     }
 
+    public boolean isRightSonOf(Expression E) {
+        return this == E.right;
+    }
+    public boolean isLeftSonOf(Expression E) {
+        return this == E.left;
+    }
     @Override
     public String toString() {
         return "Expression:" +

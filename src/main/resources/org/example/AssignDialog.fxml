@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.collections.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.collections.FXCollections?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AssignDialogController">
+    <children>
+        <VBox fx:id="root" alignment="CENTER" layoutY="-14.0" prefHeight="400.0" prefWidth="600.0" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+            <children>
+                <Label text="Assign Value to Variable">
+                    <font>
+                        <Font name="Arial Italic" size="25.0" />
+                    </font>
+                    <VBox.margin>
+                        <Insets bottom="10.0" />
+                    </VBox.margin>
+                </Label>
+                <HBox alignment="CENTER" spacing="10">
+                    <children>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <VBox spacing="0">
+                            <children>
+                                <Label alignment="CENTER_RIGHT" text="Variable:">
+                                    <font>
+                                        <Font name="Arial" size="18.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="variableField" promptText="Enter a variable">
+                                    <font>
+                                        <Font size="20.0" />
+                                    </font>
+                                </TextField>
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" spacing="10">
+                    <children>
+                        <Region HBox.hgrow="ALWAYS" />
+                        <VBox spacing="0">
+                            <children>
+                                <Label alignment="CENTER_RIGHT" text="Value:">
+                                    <font>
+                                        <Font name="Arial" size="18.0" />
+                                    </font>
+                                </Label>
+                                <TextField fx:id="valueField" promptText="Enter your number">
+                                    <font>
+                                        <Font size="20.0" />
+                                    </font>
+                                </TextField>
+                            </children>
+                        </VBox>
+                        <Region HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+                <HBox spacing="10">
+                    <children>
+                        <Region prefHeight="60.0" prefWidth="136.0" HBox.hgrow="ALWAYS" />
+                        <VBox spacing="0">
+                            <children>
+                                <Label text="Trigonometric Mode:">
+                                    <font>
+                                        <Font name="Arial" size="18.0" />
+                                    </font>
+                                </Label>
+                                <ComboBox fx:id="trigModeComboBox" prefHeight="36.0" prefWidth="180.0" promptText="Select Mode" visibleRowCount="5">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="none" />
+                                            <String fx:value="sin" />
+                                            <String fx:value="cos" />
+                                            <String fx:value="tan" />
+                                            <String fx:value="asin" />
+                                            <String fx:value="acos" />
+                                            <String fx:value="atan" />
+                                            <String fx:value="sec" />
+                                            <String fx:value="csc" />
+                                            <String fx:value="cot" />
+                                        </FXCollections>
+                                    </items>
+                                    <VBox.margin>
+                                        <Insets top="3.0" />
+                                    </VBox.margin>
+                                </ComboBox>
+                            </children>
+                        </VBox>
+                        <Region prefHeight="60.0" prefWidth="222.0" HBox.hgrow="ALWAYS" />
+                    </children>
+                </HBox>
+                <Button onAction="#onSaveButtonClick" prefHeight="41.0" prefWidth="78.0" text="Save">
+                    <VBox.margin>
+                        <Insets top="20.0" />
+                    </VBox.margin>
+                </Button>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

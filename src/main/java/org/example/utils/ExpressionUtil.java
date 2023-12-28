@@ -466,6 +466,37 @@ public class ExpressionUtil {
         }
     }
 
+    public static String testWriteExpr(ExpressionTree E) {
+        StringBuilder stringBuilder = new StringBuilder();
+        testWriteExpression(E,stringBuilder);
+        return stringBuilder.toString();
+    }
+
+    private static void testWriteExpression(Expression E, StringBuilder stringBuilder) {
+        if (E != null) {
+            if (E.op.equals("#")) {
+                // 常量
+//                System.out.print(E.value);
+                stringBuilder.append(E.value);
+            } else if (Character.isAlphabetic(E.op.charAt(0))
+                    && E.op.length() == 1) {
+                // 变量
+//                System.out.print(E.op);
+                stringBuilder.append(E.op);
+            } else {
+                // 复合表达式
+//                System.out.print("(");
+                stringBuilder.append("(");
+                testWriteExpression(E.left,stringBuilder);
+//                System.out.print(" " + E.op + " ");
+                stringBuilder.append(" ").append(E.op).append(" ");
+                testWriteExpression(E.right,stringBuilder);
+//                System.out.print(")");
+                stringBuilder.append(")");
+            }
+        }
+    }
+
     /**
      * 判断字符是否是运算符
      *

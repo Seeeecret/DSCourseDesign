@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="org.example.ExpressionGUI"
+            prefHeight="400.0" prefWidth="800.0">
+    <VBox fx:id="root" spacing="10" alignment="CENTER" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+        <TextField fx:id="inputExpression" promptText="Enter expression" />
+        <HBox spacing="10">
+            <Button fx:id="readButton" text="Read" onAction="#onReadButtonClick" />
+            <Button fx:id="writeButton" text="Write" onAction="#onWriteButtonClick" />
+            <Button fx:id="assignButton" text="Assign" onAction="#onAssignButtonClick" />
+            <Button fx:id="valueButton" text="Evaluate" onAction="#onValueButtonClick" />
+            <Button fx:id="compoundButton" text="Compound" onAction="#onCompoundButtonClick" />
+            <Button fx:id="diffButton" text="Differentiate" onAction="#onDiffButtonClick" />
+            <Button fx:id="mergeConstButton" text="Merge Constants" onAction="#onMergeConstButtonClick" />
+            <Button fx:id="openInputDialogButton" text="Open Input Dialog" onAction="#onOpenInputDialogButtonClick" />
+        </HBox>
+        <TextArea fx:id="outputTextArea" prefHeight="200.0" prefWidth="400.0" editable="false" styleClass="output-text-area" />
+    </VBox>
+</AnchorPane>

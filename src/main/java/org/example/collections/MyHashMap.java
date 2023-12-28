@@ -301,7 +301,14 @@ public class MyHashMap<K, V> {
     public static <K, V> MyHashMap<K, V> merge(MyHashMap<K, V> map1, MyHashMap<K, V> map2) {
         // 创建一个新的HashMap对象
         MyHashMap<K, V> mergedMap = new MyHashMap<>();
-
+//        先判断任一map是否为null
+        if (map1 == null && map2 == null) {
+            return mergedMap;
+        }else if (map2 == null) {
+            return map1;
+        }else if (map1 == null) {
+            return map2;
+        }
         // 遍历第一个HashMap的每个节点，将其键值对添加到新的HashMap中
         for (Node<K, V> e : map1.table) {
             while (e != null) {

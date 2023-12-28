@@ -1,14 +1,15 @@
 package org.example;
+
 import javafx.application.Application;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.example.pojo.Expression;
@@ -16,6 +17,7 @@ import org.example.pojo.ExpressionTree;
 import org.example.utils.ExpressionUtil;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ExpressionGUI extends Application {
 
@@ -40,7 +42,20 @@ public class ExpressionGUI extends Application {
     @FXML
     private TextArea outputTextArea;
     private static Scene scene;
+
+    public TextArea getOutputTextArea() {
+        return outputTextArea;
+    }
+
     private ExpressionTree expressionTree;
+
+    public ExpressionTree getExpressionTree() {
+        return expressionTree;
+    }
+
+    public void setExpressionTree(ExpressionTree expressionTree) {
+        this.expressionTree = expressionTree;
+    }
 
     public static void main(String[] args) {
         launch(args);
@@ -52,7 +67,7 @@ public class ExpressionGUI extends Application {
 //        loader.setController(this);
 //
 //        VBox root = loader.load();
-        Scene scene = new Scene(loadFXML("ExpressionGUI"), 600, 400);
+        Scene scene = new Scene(loadFXML("ExpressionGUI"), 700, 400);
 
         primaryStage.setTitle("Expression Parser GUI");
         primaryStage.setScene(scene);
@@ -63,15 +78,39 @@ public class ExpressionGUI extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(ExpressionGUI.class.getResource(fxml + ".fxml"));
         return fxmlLoader.load();
     }
+
     static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
+
     @FXML
-    private void onReadButtonClick() {
-        expressionTree = new ExpressionTree();
-        String input = inputExpression.getText();
-        expressionTree = ExpressionUtil.testReadExpr(expressionTree, input);
-        outputTextArea.appendText("Expression read successfully.\n");
+    private void onReadButtonClick() throws IOException {
+        try {
+            FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("InputDialog.fxml"));
+            AnchorPane anchorPane = loader.load();
+            AtomicReference<String> inputText = new AtomicReference<>("");
+            Stage inputDialogStage = new Stage();
+            inputDialogStage.initModality(Modality.APPLICATION_MODAL);
+            inputDialogStage.setTitle("Input Dialog");
+
+            InputDialogController inputDialogController = loader.getController();
+            inputDialogController.setStage(inputDialogStage);
+            inputDialogController.setExpressionGUI(this);
+
+            Scene inputDialogScene = new Scene(anchorPane);
+            // Get the input text
+            inputDialogStage.setScene(inputDialogScene);
+            inputDialogStage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+//        String inputText = openNewWindowsGetInput();
+////        如果用户是点击了关闭按钮,那么就不会执行下面的代码
+//        if (!inputText.equals("close")) {
+//            outputTextArea.appendText("Input from dialog: " + inputText + "\n");
+//            expressionTree = ExpressionUtil.testReadExpr(new ExpressionTree(), inputText);
+//            outputTextArea.appendText("Expression read successfully.\n");
+//        }
     }
 
     @FXML
@@ -98,7 +137,7 @@ public class ExpressionGUI extends Application {
     @FXML
     private void onCompoundButtonClick() {
         ExpressionTree compoundExpression = new ExpressionTree();
-        ExpressionUtil.testReadExpr(compoundExpression,"+71");
+        ExpressionUtil.testReadExpr(compoundExpression, "+71");
         ExpressionTree compoundedExpr1 = ExpressionUtil.CompoundExpr('*', expressionTree, compoundExpression);
 
         ExpressionTree compoundedExpr2 = ExpressionUtil.CompoundExpr('+', compoundExpression, expressionTree);
@@ -130,6 +169,7 @@ public class ExpressionGUI extends Application {
         outputTextArea.appendText("Constants merged successfully:");
         outputTextArea.appendText(ExpressionUtil.testWriteExpr(E2));
     }
+
     @FXML
     private void onOpenInputDialogButtonClick() {
         try {
@@ -173,6 +213,7 @@ public class ExpressionGUI extends Application {
             // Set the AssignDialogController for the loaded FXML
             AssignDialogController assignDialogController = loader.getController();
             assignDialogController.setStage(assignDialogStage);
+            assignDialogController.setExpressionGUI(this);
 
             // Set the scene and show the assign dialog
             Scene assignDialogScene = new Scene(anchorPane);
@@ -183,5 +224,60 @@ public class ExpressionGUI extends Application {
         }
     }
 
+    @Deprecated
+    private String openNewWindowsGetInput() throws IOException {
+        FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("InputDialog.fxml"));
+        AnchorPane anchorPane = loader.load();
+        AtomicReference<String> inputText = new AtomicReference<>("");
+        // Create a new stage for the input dialog
+        Stage inputDialogStage = new Stage();
+        inputDialogStage.initModality(Modality.APPLICATION_MODAL);
+        inputDialogStage.setTitle("Input Dialog");
 
+        // Set the InputDialogController for the loaded FXML
+        InputDialogController inputDialogController = loader.getController();
+        inputDialogController.setStage(inputDialogStage);
+        inputDialogController.setExpressionGUI(this);
+
+        // Set the scene and show the input dialog
+        Scene inputDialogScene = new Scene(anchorPane);
+        inputDialogStage.setOnCloseRequest(event -> {
+            inputText.set("close");
+        });
+        // Get the input text
+        inputDialogStage.setScene(inputDialogScene);
+
+        inputDialogStage.showAndWait();
+
+        // Get the input text from InputDialogController
+        if (!inputText.get().equals("close")) {
+            inputText.set(inputDialogController.getInputText());
+        }
+        return inputText.get();
+
+    }
+
+    public static void showSuccessAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Success");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public static void showErrorAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    public static void showWarningAlert(String message) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
 }

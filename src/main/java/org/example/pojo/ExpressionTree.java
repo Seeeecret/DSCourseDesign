@@ -19,6 +19,7 @@ public class ExpressionTree extends Expression {
     }
 
     public ExpressionTree() {
+        this.variableCountMap = new MyHashMap<>();
     }
 
     public ExpressionTree(MyHashMap<String, Expression> variableCountMap) {

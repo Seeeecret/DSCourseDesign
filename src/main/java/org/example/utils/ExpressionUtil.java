@@ -2,6 +2,7 @@ package org.example.utils;
 
 import org.example.collections.MyHashMap;
 import org.example.collections.MyStack;
+import org.example.exceptions.VariableInTrigFucException;
 import org.example.pojo.Expression;
 import org.example.pojo.ExpressionTree;
 import org.example.collections.MutableInteger;
@@ -54,6 +55,25 @@ public class ExpressionUtil {
         return expressionTree;
     }
 
+    public static ExpressionTree trigReadExpr(Expression E, String inputString) {
+        MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
+        if (inputString.isEmpty()) {
+            System.out.println("Invalid input");
+            return null;
+        }
+        char[] input = inputString.toCharArray();// 存储输入的字符序列
+//        先遍历一遍检查有没有字母，即有没有变量出现
+        for (char c : input) {
+            if (Character.isAlphabetic(c)) {
+                throw new VariableInTrigFucException();
+            }
+        }
+        ExpressionTree expressionTree = ExpressionTree.buildExpressionTree(E);
+        ReadExpression(expressionTree, input, index);
+        searchPutVariableNode(expressionTree, expressionTree.getVariableCountMap());
+        return expressionTree;
+    }
+
     /**
      * 以字符序列的形式输入语法正确的前缀表示式并构造表达式E，内部使用的方法
      *
@@ -88,6 +108,7 @@ public class ExpressionUtil {
             ReadExpression(E.right, input, index);
         }
     }
+
 
     /**
      * 构造三角函数表达式的子树
@@ -468,7 +489,7 @@ public class ExpressionUtil {
 
     public static String testWriteExpr(ExpressionTree E) {
         StringBuilder stringBuilder = new StringBuilder();
-        testWriteExpression(E,stringBuilder);
+        testWriteExpression(E, stringBuilder);
         return stringBuilder.toString();
     }
 
@@ -487,10 +508,10 @@ public class ExpressionUtil {
                 // 复合表达式
 //                System.out.print("(");
                 stringBuilder.append("(");
-                testWriteExpression(E.left,stringBuilder);
+                testWriteExpression(E.left, stringBuilder);
 //                System.out.print(" " + E.op + " ");
                 stringBuilder.append(" ").append(E.op).append(" ");
-                testWriteExpression(E.right,stringBuilder);
+                testWriteExpression(E.right, stringBuilder);
 //                System.out.print(")");
                 stringBuilder.append(")");
             }
@@ -663,6 +684,28 @@ public class ExpressionUtil {
         }
         return false;
     }
+    /**
+     * 实现对变量V的赋值（V = c）
+     * TODO: 异常情况可用异常处理机制处理
+     *
+     * @param V 变量
+     * @param c 将要赋给变量的值
+     */
+    public static boolean Assign(String V, Double c, ExpressionTree E) {
+        if (E == null) {
+            return false;
+        }
+        MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
+        if (variableCountMap.containsKey(V.toLowerCase())) {
+            Expression expression = variableCountMap.get(V.toLowerCase());
+            expression.setValue(c);
+//            空置左右子树，以抹除可能存在的三角函数子树
+            expression.left = null;
+            expression.right = null;
+            return true;
+        }
+        return false;
+    }
 
     /**
      * 在表达式中添加三角函数等初等函数的操作。
@@ -682,7 +725,7 @@ public class ExpressionUtil {
             return false;
         }
 //        由inputString构造三角函数的子树
-        ExpressionTree newTree = testReadExpr(new Expression(), inputString);
+        ExpressionTree newTree = trigReadExpr(new Expression(), inputString);
 //        计算inputString的值
         double value = evaluatePrefixExpression(inputString);
 //        如果计算结果为NaN，说明输入的表达式不合法
@@ -813,6 +856,13 @@ public class ExpressionUtil {
             default:
                 return 0;
         }
+    }
+
+    public static boolean isTrigFuc(String trigFuc) {
+        if ("sin".equals(trigFuc) || "cos".equals(trigFuc) || "tan".equals(trigFuc)) {
+
+        }
+        return true;
     }
 
     /**
@@ -1070,6 +1120,10 @@ public class ExpressionUtil {
         // 将表达式拆分为字符数组
         char[] chars = prefixExpression.toCharArray();
 
+        //            先特判是否是负号和数字组合的负数
+        if (chars.length == 2 && chars[0] == '-' && Character.isAlphabetic(chars[1])) {
+            return -Double.parseDouble(String.valueOf(chars[1]));
+        }
         // 创建一个栈来存储操作数
         MyStack<Double> operandStack = new MyStack<>();
 
@@ -1102,6 +1156,57 @@ public class ExpressionUtil {
         }
 
         return operandStack.pop();
+    }
+
+    public static boolean isPrefixExpression(String prefixExpression) {
+
+        MyStack<Double> operandStack = null;
+        try {
+            if (prefixExpression == null || prefixExpression.isEmpty()) {
+                throw new IllegalArgumentException("Input expression is null or empty.");
+            }
+
+            // 将表达式拆分为字符数组
+            char[] chars = prefixExpression.toCharArray();
+
+//            先特判是否是负号和数字组合的负数
+            if (chars.length == 2 && chars[0] == '-' && Character.isAlphabetic(1)) {
+                return true;
+            }
+            // 创建一个栈来存储操作数
+            operandStack = new MyStack<>();
+
+            // 从右到左遍历表达式
+            for (int i = chars.length - 1; i >= 0; i--) {
+                char currentChar = chars[i];
+
+                // 如果是操作数，则将其推入栈中
+                if (Character.isDigit(currentChar) || Character.isLetter(currentChar)) {
+                    // 只有单位数字的情况，没有多位数字的情况
+                    operandStack.push((double) Character.getNumericValue(currentChar));
+
+                } else if (isOperator(currentChar)) {
+                    // 如果是运算符，则取出栈中的两个操作数进行计算，并将结果推入栈中
+                    if (operandStack.size() < 2) {
+                        throw new IllegalArgumentException("Invalid expression format: not enough operands for operator.");
+                    }
+                    double operand1 = operandStack.pop();
+                    double operand2 = operandStack.pop();
+                    double result = applyOperator(currentChar, operand1, operand2);
+                    operandStack.push(result);
+                } else {
+                    throw new IllegalArgumentException("Invalid character in expression: " + currentChar);
+                }
+            }
+
+            // 最终栈中应该只有一个元素，即表达式的计算结果
+            if (operandStack.size() != 1) {
+                throw new IllegalArgumentException("Invalid expression format: too many operands or operators.");
+            }
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+        return true;
     }
 
 
@@ -1145,4 +1250,9 @@ public class ExpressionUtil {
             System.out.println();
         }
     }
+
+    public static boolean isNumeric(String str) {
+        return str.matches("-?\\d+(\\.\\d+)?");
+    }
+
 }

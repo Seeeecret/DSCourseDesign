@@ -150,9 +150,6 @@ public class ExpressionGUI extends Application {
         compundExprStage.setScene(compundExprScene);
         compundExprStage.showAndWait();
 
-        outputTextArea.appendText("Infix compound expression: ");
-        outputTextArea.appendText(ExpressionUtil.testWriteExpr(expressionTree));
-        outputTextArea.appendText("\n");
     }
 
     @FXML

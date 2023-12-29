@@ -35,6 +35,7 @@ public class CompoundDialogController {
         }
         return inputText;
     }
+
     public void setStage(Stage stage) {
         this.stage = stage;
     }
@@ -57,6 +58,10 @@ public class CompoundDialogController {
         ExpressionTree compoundExprTree = ExpressionUtil.testReadExpr(new ExpressionTree(), compoundExprText);
         ExpressionTree GUIExprTree = expressionGUI.getExpressionTree();
         expressionGUI.setExpressionTree(ExpressionUtil.CompoundExpr(operator, compoundExprTree, GUIExprTree));
+        expressionGUI.getOutputTextArea()
+                .appendText("Infix compound expression: "
+                        + ExpressionUtil.testWriteExpr(expressionGUI.getExpressionTree())
+                        + "\n");
     }
 
     public Stage getStage() {

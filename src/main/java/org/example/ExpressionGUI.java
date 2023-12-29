@@ -27,6 +27,8 @@ public class ExpressionGUI extends Application {
     @FXML
     public Button openInputDialogButton;
     @FXML
+    public Button clearOutputButton;
+    @FXML
     private TextField inputExpression;
     @FXML
     private Button readButton;
@@ -72,7 +74,7 @@ public class ExpressionGUI extends Application {
 //        VBox root = loader.load();
         Scene scene = new Scene(loadFXML("ExpressionGUI"), 825, 400);
 
-        primaryStage.setTitle("Expression Parser GUI");
+        primaryStage.setTitle("Expression System GUI");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
@@ -85,6 +87,12 @@ public class ExpressionGUI extends Application {
     static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
+
+    @FXML
+    private void onClearOutputButtonClick() {
+        outputTextArea.clear();
+    }
+
 //+^x3-9*9X
     @FXML
     private void onReadButtonClick() throws IOException {

@@ -1,5 +1,7 @@
 package org.example.collections;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class MutableInteger {
     private int value;
 
@@ -10,7 +12,6 @@ public class MutableInteger {
     public int getValue() {
         return value;
     }
-
 
 
     public MutableInteger increment() {

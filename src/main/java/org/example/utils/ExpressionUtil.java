@@ -773,8 +773,7 @@ public class ExpressionUtil {
         try {
             return Evaluate(E, E.getVariableCountMap());
         } catch (ArithmeticException e) {
-            System.out.println("Error, Divided by zero");
-            return null;
+            throw new ArithmeticException("Unevaluable expression.0 cannot be used as a divisor");
         }
     }
 
@@ -884,6 +883,27 @@ public class ExpressionUtil {
         expressionTree.right = E2;
         return expressionTree;
     }
+
+    /**
+     * 复合两个表达式，构建一个新表达式
+     *
+     * @param P  p
+     * @param E1 e1
+     * @param E2 e2
+     * @return {@link ExpressionTree}
+     */
+    public static ExpressionTree CompoundExpr(String P, ExpressionTree E1, ExpressionTree E2) {
+        if (E1 == null || E2 == null) {
+            return null;
+        }
+        MyHashMap<String, Expression> newCountMap = MyHashMap.merge(E1.getVariableCountMap(), E2.getVariableCountMap());
+        ExpressionTree expressionTree = new ExpressionTree(newCountMap);
+        expressionTree.setOp(P.substring(0, 1));
+        expressionTree.left = E1;
+        expressionTree.right = E2;
+        return expressionTree;
+    }
+
 
     public static ExpressionTree MergeConst(ExpressionTree E) {
         if (E == null) {

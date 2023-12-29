@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import org.example.controller.CompoundDialogController;
 import org.example.pojo.Expression;
 import org.example.pojo.ExpressionTree;
 import org.example.utils.ExpressionUtil;
@@ -65,7 +66,7 @@ public class ExpressionGUI extends Application {
     public void start(Stage primaryStage) throws Exception {
 //        FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpressionGUI.fxml"));
 //        loader.setController(this);
-//
+//          这段代码有误,loader.load()返回的是一个Parent对象，是fxml文件中定义的页面的最外层对象,此时是AnchorPane不是VBox
 //        VBox root = loader.load();
         Scene scene = new Scene(loadFXML("ExpressionGUI"), 700, 400);
 
@@ -121,28 +122,36 @@ public class ExpressionGUI extends Application {
         outputTextArea.appendText("\n");
     }
 
-//    @FXML
-//    private void onAssignButtonClick() {
-//        char variable = 'x'; // You can modify this to get the variable from the user
-//        ExpressionUtil.Assign(variable, 5, expressionTree);
-//        outputTextArea.appendText("Variable assigned successfully.\n");
-//    }
 
     @FXML
     private void onValueButtonClick() {
-        double result = ExpressionUtil.Value(expressionTree);
-        outputTextArea.appendText("Expression value: " + result + "\n");
+
+        try {
+            double result = ExpressionUtil.Value(expressionTree);
+            outputTextArea.appendText("Expression value: " + result + "\n");
+        } catch (ArithmeticException e) {
+            showWarningAlert(e.getMessage() + "Please check your expression.");
+        }
     }
 
     @FXML
-    private void onCompoundButtonClick() {
-        ExpressionTree compoundExpression = new ExpressionTree();
-        ExpressionUtil.testReadExpr(compoundExpression, "+71");
-        ExpressionTree compoundedExpr1 = ExpressionUtil.CompoundExpr('*', expressionTree, compoundExpression);
+    private void onCompoundButtonClick() throws IOException {
+        FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("CompoundGUI.fxml"));
+        AnchorPane anchorPane = loader.load();
+        Stage compundExprStage = new Stage();
+        compundExprStage.initModality(Modality.APPLICATION_MODAL);
+        compundExprStage.setTitle("Compound Expression Dialog");
 
-        ExpressionTree compoundedExpr2 = ExpressionUtil.CompoundExpr('+', compoundExpression, expressionTree);
+        CompoundDialogController compoundDialogController = loader.getController();
+        compoundDialogController.setStage(compundExprStage);
+        compoundDialogController.setExpressionGUI(this);
+
+        Scene compundExprScene = new Scene(anchorPane);
+        compundExprStage.setScene(compundExprScene);
+        compundExprStage.showAndWait();
+
         outputTextArea.appendText("Infix compound expression: ");
-        outputTextArea.appendText(ExpressionUtil.testWriteExpr(compoundedExpr1));
+        outputTextArea.appendText(ExpressionUtil.testWriteExpr(expressionTree));
         outputTextArea.appendText("\n");
     }
 
@@ -173,23 +182,17 @@ public class ExpressionGUI extends Application {
     @FXML
     private void onOpenInputDialogButtonClick() {
         try {
-            // Load the InputDialog FXML file
+//            加载InputDialog FXML文件
             FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("InputDialog.fxml"));
-//            VBox inputDialogRoot = loader.load();
-//            Parent inputDialog = loadFXML("InputDialog");
-//            AnchorPane root = (AnchorPane) inputDialog;
             AnchorPane load = loader.load();
-
-            // Create a new stage for the input dialog
+//            创建一个新的Stage用于输入对话框
             Stage inputDialogStage = new Stage();
             inputDialogStage.initModality(Modality.APPLICATION_MODAL);
             inputDialogStage.setTitle("Input Dialog");
-
-            // Set the InputDialogController for the loaded FXML
+//            设置加载的FXML的InputDialogController
             InputDialogController inputDialogController = loader.getController();
             inputDialogController.setStage(inputDialogStage);
-
-            // Set the scene and show the input dialog
+//            设置inputDialogController的expressionGUI
             Scene inputDialogScene = new Scene(load);
             inputDialogStage.setScene(inputDialogScene);
             inputDialogStage.showAndWait();
@@ -201,21 +204,20 @@ public class ExpressionGUI extends Application {
     @FXML
     public void onAssignButtonClick() {
         try {
-            // Load the AssignDialog FXML file
+            // 加载AssignDialog FXML文件
             FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("AssignDialog.fxml"));
             AnchorPane anchorPane = loader.load();
 
-            // Create a new stage for the assign dialog
+            // 创建一个新的Stage用于分配对话框
             Stage assignDialogStage = new Stage();
             assignDialogStage.initModality(Modality.APPLICATION_MODAL);
             assignDialogStage.setTitle("Assign Value");
 
-            // Set the AssignDialogController for the loaded FXML
+            // 设置加载的FXML的AssignDialogController
             AssignDialogController assignDialogController = loader.getController();
             assignDialogController.setStage(assignDialogStage);
             assignDialogController.setExpressionGUI(this);
-
-            // Set the scene and show the assign dialog
+//              设置assignDialogController的expressionTree
             Scene assignDialogScene = new Scene(anchorPane);
             assignDialogStage.setScene(assignDialogScene);
             assignDialogStage.showAndWait();

@@ -103,6 +103,22 @@ public class Expression{
         return null;
     }
 
+    /**
+     * 判断表达式是否包含变量
+     *
+     * @param V v
+     * @return boolean
+     */
+    public boolean containsVariable(String V){
+        if (this.left != null && this.left.containsVariable(V)) {
+            return true;
+        }
+        if (this.right != null && this.right.containsVariable(V)) {
+            return true;
+        }
+        return this.op.equalsIgnoreCase(V);
+    }
+
     public boolean isRightSonOf(Expression E) {
         return this == E.right;
     }

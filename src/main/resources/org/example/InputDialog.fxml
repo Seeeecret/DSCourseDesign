@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<AnchorPane prefHeight="250.0" prefWidth="553.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.InputDialogController">
+<AnchorPane prefHeight="250.0" prefWidth="553.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.InputDialogController">
    <children>
        <VBox fx:id="rootBox" alignment="CENTER" layoutX="-3.0" prefHeight="250.0" prefWidth="553.0" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
            <padding>
@@ -19,7 +19,7 @@
           <children>
               <Label fx:id="HintString" alignment="CENTER" contentDisplay="CENTER" text="Enter Your New Expression:" textAlignment="CENTER" textOverrun="CLIP">
                <font>
-                  <Font name="System Italic" size="25.0" />
+                  <Font name="Arial Italic" size="26.0" />
                </font>
                <cursor>
                   <Cursor fx:constant="DEFAULT" />

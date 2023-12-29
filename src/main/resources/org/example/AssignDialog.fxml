@@ -6,7 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.AssignDialogController">
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.AssignDialogController">
     <children>
         <VBox fx:id="root" alignment="CENTER" layoutY="-14.0" prefHeight="400.0" prefWidth="600.0" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
             <children>
@@ -68,7 +68,7 @@
                                         <Font name="Arial" size="18.0" />
                                     </font>
                                 </Label>
-                                <ComboBox fx:id="trigModeComboBox" prefHeight="36.0" prefWidth="180.0" promptText="Select Mode" visibleRowCount="5">
+                                <ComboBox fx:id="trigModeComboBox" prefHeight="36.0" prefWidth="180.0" promptText="disabled" visibleRowCount="5">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="disabled" />

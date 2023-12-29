@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane prefHeight="301.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.DiffDialogController">
+    <children>
+        <VBox fx:id="rootBox" alignment="CENTER" layoutX="-3.0" prefHeight="301.0" prefWidth="600.0" spacing="10" styleClass="container" AnchorPane.bottomAnchor="20.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+            <padding>
+                <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+            </padding>
+            <children>
+                <Label fx:id="HintString" alignment="CENTER" contentDisplay="CENTER" text="Get Partial Derivative" textAlignment="CENTER" textOverrun="CLIP">
+                    <font>
+                        <Font name="Arial Italic" size="27.0" />
+                    </font>
+                    <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                    </cursor>
+               <VBox.margin>
+                  <Insets bottom="15.0" />
+               </VBox.margin>
+                </Label>
+                <Text fill="RED" fontSmoothingType="LCD" text="Attention: Only power functions can be differentiated." wrappingWidth="240.994140625">
+               <font>
+                  <Font size="15.0" />
+               </font></Text>
+
+                <ComboBox fx:id="variableComboBox" prefHeight="45.0" prefWidth="214.0" promptText="Select a variable">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+
+                        </FXCollections>
+                    </items>
+                    <padding>
+                        <Insets bottom="5.0" top="3.0" />
+                    </padding>
+                    <VBox.margin>
+                        <Insets bottom="5.0" />
+                    </VBox.margin>
+                </ComboBox>
+                <Button onAction="#onOKButtonClick" prefHeight="34.0" prefWidth="80.0" text="OK">
+               <VBox.margin>
+                  <Insets />
+               </VBox.margin></Button>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

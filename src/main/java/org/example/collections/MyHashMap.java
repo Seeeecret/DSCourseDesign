@@ -1,4 +1,9 @@
 package org.example.collections;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.function.BiConsumer;
+
 /**
  * 定义一个哈希表类，包含一个节点数组，一个大小和一个阈值。
  *
@@ -32,13 +37,14 @@ public class MyHashMap<K, V> {
      */
     static final float LOAD_FACTOR = 0.75f;
 
+
     /**
      * 节点类，包含键，值，哈希码和下一个节点的引用。
      *
      * @param <K> 键的类型
      * @param <V> 值的类型
      */
-    private static class Node<K, V> {
+    protected static class Node<K, V> {
         /**
          * 键。
          */
@@ -73,8 +79,34 @@ public class MyHashMap<K, V> {
             this.hash = hash;
             this.next = next;
         }
+
+        public Node(K key, V value) {
+            this.key = key;
+            this.value = value;
+            this.hash = key.hashCode();
+            this.next = null;
+        }
     }
 
+    /**
+     * 遍历哈希表的所有键值对，并执行指定操作。
+     *
+     * @param action 操作，接受键和值作为参数
+     */
+    public void forEach(BiConsumer<? super K, ? super V> action) {
+        // 遍历数组中的每个位置
+        for (int i = 0; i < table.length; i++) {
+            // 获取当前位置的第一个节点
+            Node<K, V> e = table[i];
+            // 遍历当前位置的链表
+            while (e != null) {
+                // 执行指定操作
+                action.accept(e.key, e.value);
+                // 获取下一个节点
+                e = e.next;
+            }
+        }
+    }
     /**
      * 构造方法，初始化节点数组，大小和阈值。
      */

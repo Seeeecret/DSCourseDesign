@@ -31,9 +31,5 @@ import org.example.utils.ExpressionUtil;
 public class Main {
     public static void main(String[] args) {
 
-        while (true) {
-            Expression E = ExpressionUtil.ReadExpr(new Expression());
-            ExpressionUtil.WriteExpr(E);
-        }
     }
 }

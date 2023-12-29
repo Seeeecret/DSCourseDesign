@@ -1,27 +1,137 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
 <?import javafx.scene.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<AnchorPane xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml"
-            fx:controller="org.example.ExpressionGUI"
-            prefHeight="400.0" prefWidth="800.0">
-    <VBox fx:id="root" spacing="10" alignment="CENTER" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
-        <TextField fx:id="inputExpression" promptText="Enter expression" />
-        <HBox spacing="10">
-            <Button fx:id="readButton" text="Read" onAction="#onReadButtonClick" />
-            <Button fx:id="writeButton" text="Write" onAction="#onWriteButtonClick" />
-            <Button fx:id="assignButton" text="Assign" onAction="#onAssignButtonClick" />
-            <Button fx:id="valueButton" text="Evaluate" onAction="#onValueButtonClick" />
-            <Button fx:id="compoundButton" text="Compound" onAction="#onCompoundButtonClick" />
-            <Button fx:id="diffButton" text="Differentiate" onAction="#onDiffButtonClick" />
-            <Button fx:id="mergeConstButton" text="Merge Constants" onAction="#onMergeConstButtonClick" />
-            <Button fx:id="openInputDialogButton" text="Open Input Dialog" onAction="#onOpenInputDialogButtonClick" />
-        </HBox>
-        <TextArea fx:id="outputTextArea" prefHeight="200.0" prefWidth="400.0" editable="false" styleClass="output-text-area" />
-    </VBox>
+<!--<AnchorPane prefHeight="400.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"-->
+<!--            fx:controller="org.example.ExpressionGUI">-->
+<!--    <children>-->
+<!--        <VBox fx:id="root" alignment="CENTER" layoutY="278.0" spacing="10" styleClass="container"-->
+<!--              xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">-->
+<!--            <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to Expression System" textAlignment="CENTER"-->
+<!--                  wrappingWidth="546.3603515625">-->
+<!--                <font>-->
+<!--                    <Font name="Arial Bold Italic" size="35.0"/>-->
+<!--                </font>-->
+<!--            </Text>-->
+<!--            <TextArea fx:id="outputTextArea" editable="false" prefHeight="282.0" prefWidth="802.0"-->
+<!--                      styleClass="output-text-area">-->
+<!--                <font>-->
+<!--                    <Font name="Arial" size="22.0"/>-->
+<!--                </font>-->
+<!--            </TextArea>-->
+<!--            <HBox spacing="10">-->
+<!--                <children>-->
+<!--                    <Button fx:id="readButton" onAction="#onReadButtonClick" text="Read"/>-->
+<!--                    <Button fx:id="writeButton" onAction="#onWriteButtonClick" text="Write"/>-->
+<!--                    <Button fx:id="assignButton" onAction="#onAssignButtonClick" text="Assign"/>-->
+<!--                    <Button fx:id="valueButton" onAction="#onValueButtonClick" text="Evaluate"/>-->
+<!--                    <Button fx:id="compoundButton" onAction="#onCompoundButtonClick" text="Compound"/>-->
+<!--                    <Button fx:id="diffButton" onAction="#onDiffButtonClick" text="Differentiate"/>-->
+<!--                    <Button fx:id="mergeConstButton" onAction="#onMergeConstButtonClick" text="Merge Constants"/>-->
+<!--                </children>-->
+<!--            </HBox>-->
+<!--        </VBox>-->
+<!--    </children>-->
+<!--</AnchorPane>-->
+<!--<AnchorPane prefHeight="400.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ExpressionGUI">-->
+<!--   <children>-->
+<!--       <VBox fx:id="root" alignment="CENTER" layoutY="278.0" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" />-->
+<!--      <Text layoutX="119.0" layoutY="46.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to Expression System" textAlignment="CENTER" wrappingWidth="546.3603515625">-->
+<!--         <font>-->
+<!--            <Font name="Arial Bold Italic" size="35.0" />-->
+<!--         </font>-->
+<!--      </Text>-->
+<!--        <HBox layoutY="358.0" spacing="10">-->
+<!--           <children>-->
+<!--               <Button fx:id="readButton" onAction="#onReadButtonClick" text="Read" />-->
+<!--               <Button fx:id="writeButton" onAction="#onWriteButtonClick" text="Write" />-->
+<!--               <Button fx:id="assignButton" onAction="#onAssignButtonClick" text="Assign" />-->
+<!--               <Button fx:id="valueButton" onAction="#onValueButtonClick" text="Evaluate" />-->
+<!--               <Button fx:id="compoundButton" onAction="#onCompoundButtonClick" text="Compound" />-->
+<!--               <Button fx:id="diffButton" onAction="#onDiffButtonClick" text="Differentiate" />-->
+<!--               <Button fx:id="mergeConstButton" onAction="#onMergeConstButtonClick" text="Merge Constants" />-->
+<!--           </children>-->
+<!--        </HBox>-->
+<!--        <TextArea fx:id="outputTextArea" editable="false" layoutY="68.0" prefHeight="282.0" prefWidth="802.0" styleClass="output-text-area">-->
+<!--         <font>-->
+<!--            <Font name="Arial" size="22.0" />-->
+<!--         </font></TextArea>-->
+<!--   </children>-->
+<!--</AnchorPane>-->
+<!--<AnchorPane prefHeight="392.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ExpressionGUI">-->
+<!--    <children>-->
+<!--        <VBox fx:id="root" alignment="CENTER" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">-->
+<!--           <children>-->
+<!--               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to Expression System" textAlignment="CENTER">-->
+<!--                   <font>-->
+<!--                       <Font name="Arial Bold Italic" size="35.0" />-->
+<!--                   </font>-->
+<!--               </Text>-->
+<!--               <TextArea fx:id="outputTextArea" editable="false" prefHeight="282.0" prefWidth="711.0" styleClass="output-text-area">-->
+<!--                   <font>-->
+<!--                       <Font name="Arial" size="22.0" />-->
+<!--                   </font>-->
+<!--               </TextArea>-->
+<!--               <HBox alignment="TOP_CENTER" spacing="10">-->
+<!--                  <children>-->
+<!--                      <Button fx:id="readButton" onAction="#onReadButtonClick" text="Read" />-->
+<!--                      <Button fx:id="writeButton" onAction="#onWriteButtonClick" text="Write" />-->
+<!--                      <Button fx:id="assignButton" onAction="#onAssignButtonClick" text="Assign" />-->
+<!--                      <Button fx:id="valueButton" onAction="#onValueButtonClick" text="Evaluate" />-->
+<!--                      <Button fx:id="compoundButton" onAction="#onCompoundButtonClick" text="Compound" />-->
+<!--                      <Button fx:id="diffButton" onAction="#onDiffButtonClick" text="Differentiate" />-->
+<!--                      <Button fx:id="mergeConstButton" onAction="#onMergeConstButtonClick" text="Merge Constants" />-->
+<!--                  </children>-->
+<!--               </HBox>-->
+<!--           </children>-->
+<!--        </VBox>-->
+<!--    </children>-->
+<!--</AnchorPane>-->
+
+<AnchorPane prefHeight="400.0" prefWidth="810.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.ExpressionGUI">
+    <children>
+        <VBox fx:id="root" alignment="CENTER" maxWidth="1.7976931348623157E308" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
+           <children>
+               <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome to Expression System" textAlignment="CENTER">
+                   <font>
+                       <Font name="Arial Bold Italic" size="35.0" />
+                   </font>
+               </Text>
+               <TextArea fx:id="outputTextArea" editable="false" maxWidth="1.7976931348623157E308" prefHeight="282.0" prefWidth="802.0" styleClass="output-text-area">
+                   <font>
+                       <Font name="Arial" size="22.0" />
+                   </font>
+               <VBox.margin>
+                  <Insets left="8.0" right="8.0" />
+               </VBox.margin>
+               </TextArea>
+               <HBox alignment="TOP_CENTER" spacing="10">
+                  <children>
+                      <Button fx:id="readButton" onAction="#onReadButtonClick" text="Read" />
+                      <Button fx:id="writeButton" onAction="#onWriteButtonClick" text="Write" />
+                      <Button fx:id="assignButton" onAction="#onAssignButtonClick" text="Assign" />
+                      <Button fx:id="valueButton" onAction="#onValueButtonClick" text="Evaluate" />
+                      <Button fx:id="compoundButton" onAction="#onCompoundButtonClick" text="Compound" />
+                      <Button fx:id="diffButton" onAction="#onDiffButtonClick" text="Differentiate">
+                     <HBox.margin>
+                        <Insets />
+                     </HBox.margin></Button>
+                      <Button fx:id="mergeConstButton" onAction="#onMergeConstButtonClick" text="Merge Constants" />
+                  </children>
+               <padding>
+                  <Insets top="3.0" />
+               </padding>
+               </HBox>
+           </children>
+         <padding>
+            <Insets left="3.0" right="3.0" />
+         </padding>
+        </VBox>
+    </children>
 </AnchorPane>

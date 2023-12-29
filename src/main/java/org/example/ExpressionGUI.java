@@ -12,8 +12,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import org.example.controller.CompoundDialogController;
-import org.example.pojo.Expression;
+import org.example.controller.AssignDialogController;
+import org.example.controller.CompoundGUIController;
+import org.example.controller.DiffDialogController;
+import org.example.controller.InputDialogController;
 import org.example.pojo.ExpressionTree;
 import org.example.utils.ExpressionUtil;
 
@@ -68,7 +70,7 @@ public class ExpressionGUI extends Application {
 //        loader.setController(this);
 //          这段代码有误,loader.load()返回的是一个Parent对象，是fxml文件中定义的页面的最外层对象,此时是AnchorPane不是VBox
 //        VBox root = loader.load();
-        Scene scene = new Scene(loadFXML("ExpressionGUI"), 700, 400);
+        Scene scene = new Scene(loadFXML("ExpressionGUI"), 825, 400);
 
         primaryStage.setTitle("Expression Parser GUI");
         primaryStage.setScene(scene);
@@ -83,7 +85,7 @@ public class ExpressionGUI extends Application {
     static void setRoot(String fxml) throws IOException {
         scene.setRoot(loadFXML(fxml));
     }
-
+//+^x3-9*9X
     @FXML
     private void onReadButtonClick() throws IOException {
         try {
@@ -105,19 +107,12 @@ public class ExpressionGUI extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        String inputText = openNewWindowsGetInput();
-////        如果用户是点击了关闭按钮,那么就不会执行下面的代码
-//        if (!inputText.equals("close")) {
-//            outputTextArea.appendText("Input from dialog: " + inputText + "\n");
-//            expressionTree = ExpressionUtil.testReadExpr(new ExpressionTree(), inputText);
-//            outputTextArea.appendText("Expression read successfully.\n");
-//        }
     }
 
     @FXML
     private void onWriteButtonClick() {
         outputTextArea.appendText("Infix expression: ");
-        String writeExpr = ExpressionUtil.testWriteExpr(expressionTree);
+        String writeExpr = ExpressionUtil.guiWriteExpr(expressionTree);
         outputTextArea.appendText(writeExpr);
         outputTextArea.appendText("\n");
     }
@@ -142,9 +137,10 @@ public class ExpressionGUI extends Application {
         compundExprStage.initModality(Modality.APPLICATION_MODAL);
         compundExprStage.setTitle("Compound Expression Dialog");
 
-        CompoundDialogController compoundDialogController = loader.getController();
-        compoundDialogController.setStage(compundExprStage);
-        compoundDialogController.setExpressionGUI(this);
+        CompoundGUIController compoundGUIController = loader.getController();
+        compoundGUIController.setStage(compundExprStage);
+        compoundGUIController.setExpressionGUI(this);
+//        compoundGUIController.setComboBox();
 
         Scene compundExprScene = new Scene(anchorPane);
         compundExprStage.setScene(compundExprScene);
@@ -153,27 +149,27 @@ public class ExpressionGUI extends Application {
     }
 
     @FXML
-    private void onDiffButtonClick() {
-        String inputString1 = "+++*3^x3*2^x2x6";
-        ExpressionTree E1 = ExpressionUtil.testReadExpr(new Expression(), inputString1);
-        char variable = 'x'; // You can modify this to get the variable from the user
-        ExpressionUtil.Diff(E1, "x");
-        outputTextArea.appendText("Derivative expression: ");
-        outputTextArea.appendText(ExpressionUtil.testWriteExpr(E1));
-        outputTextArea.appendText("\n");
+    private void onDiffButtonClick() throws IOException {
+        FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("DiffDialog.fxml"));
+        AnchorPane anchorPane = loader.load();
+        Stage diffStage = new Stage();
+        diffStage.initModality(Modality.APPLICATION_MODAL);
+        diffStage.setTitle("Compound Expression Dialog");
+
+        DiffDialogController diffController = loader.getController();
+        diffController.setStage(diffStage);
+        diffController.setExpressionGUI(this);
+        diffController.setComboBox();
+
+        Scene compundExprScene = new Scene(anchorPane);
+        diffStage.setScene(compundExprScene);
+        diffStage.showAndWait();
     }
 
     @FXML
     private void onMergeConstButtonClick() {
-        String inputString7 = "+^x31";
-        ExpressionTree E7 = ExpressionUtil.testReadExpr(new Expression(), inputString7);
-        String inputString8 = "+*3*3^x21";
-        ExpressionTree E8 = ExpressionUtil.testReadExpr(new Expression(), inputString8);
-        String inputString2 = "++*15^x2*8x";
-        ExpressionTree E2 = ExpressionUtil.testReadExpr(new Expression(), inputString2);
-        E2 = ExpressionUtil.MergeConst(E2);
+        expressionTree = ExpressionUtil.MergeConst(expressionTree);
         outputTextArea.appendText("Constants merged successfully:");
-        outputTextArea.appendText(ExpressionUtil.testWriteExpr(E2));
     }
 
     @FXML

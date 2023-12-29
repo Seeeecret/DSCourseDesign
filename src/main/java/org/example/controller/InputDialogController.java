@@ -1,9 +1,10 @@
-package org.example;
+package org.example.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.ExpressionGUI;
 import org.example.pojo.Expression;
 import org.example.pojo.ExpressionTree;
 import org.example.utils.ExpressionUtil;

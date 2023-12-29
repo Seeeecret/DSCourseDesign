@@ -5,11 +5,10 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.ExpressionGUI;
-import org.example.pojo.Expression;
 import org.example.pojo.ExpressionTree;
 import org.example.utils.ExpressionUtil;
 
-public class CompoundDialogController {
+public class CompoundGUIController {
 
     @FXML
     public ComboBox<String> operatorComboBox;
@@ -40,6 +39,10 @@ public class CompoundDialogController {
         this.stage = stage;
     }
 
+//    public void setComboBox() {
+//        operatorComboBox.getItems().addAll("+", "-", "*", "/");
+//    }
+
     @FXML
     public void onSaveButtonClick() {
         String operator = operatorComboBox.getValue();
@@ -58,9 +61,11 @@ public class CompoundDialogController {
         ExpressionTree compoundExprTree = ExpressionUtil.testReadExpr(new ExpressionTree(), compoundExprText);
         ExpressionTree GUIExprTree = expressionGUI.getExpressionTree();
         expressionGUI.setExpressionTree(ExpressionUtil.CompoundExpr(operator, compoundExprTree, GUIExprTree));
+        ExpressionGUI.showSuccessAlert("Compound expression successfully.");
+        stage.close();
         expressionGUI.getOutputTextArea()
                 .appendText("Infix compound expression: "
-                        + ExpressionUtil.testWriteExpr(expressionGUI.getExpressionTree())
+                        + ExpressionUtil.guiWriteExpr(expressionGUI.getExpressionTree())
                         + "\n");
     }
 

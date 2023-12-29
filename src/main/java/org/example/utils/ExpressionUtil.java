@@ -11,8 +11,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
-import static org.example.utils.Consts.CONSTANT_DEFAULT_OPERATOR;
-import static org.example.utils.Consts.VARIABLE_DEFAULT_VALUE;
+import static org.example.utils.Consts.*;
 
 /**
  *
@@ -175,32 +174,6 @@ public class ExpressionUtil {
         searchReplaceTargetNode(trigFuc, newExpression, targetTree.left, targetOp);
         searchReplaceTargetNode(trigFuc, newExpression, targetTree.right, targetOp);
 
-
-//        是数字
-//        if (Character.isDigit(targetTree.getOp().charAt(0))) {
-//            return;
-//        } else if (targetTree.left == null && targetTree.right != null) {
-//            if (targetTree.right.getOp().equals(targetOp)) {
-//                targetTree.right = newExpression;
-//            } else {
-//                searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
-//            }
-//        } else if (targetTree.left != null && targetTree.right == null) {
-//            if (targetTree.left.getOp().equals(targetOp)) {
-//                targetTree.left = newExpression;
-//            } else {
-//                searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
-//            }
-//        } else {
-//            if (targetTree.left.getOp().equals(targetOp)) {
-//                targetTree.left = newExpression;
-//            }
-//            if (targetTree.right.getOp().equals(targetOp)) {
-//                targetTree.right = newExpression;
-//            }
-//        }
-//        searchReplaceTargetNode(newExpression, targetTree.left, targetOp);
-//        searchReplaceTargetNode(newExpression, targetTree.right, targetOp);
     }
 
     /**
@@ -225,9 +198,21 @@ public class ExpressionUtil {
         MergeConst(E);
         differentiateConstant(E, V, variableCountMap);
         differentiateVariable(E, E, V);
-//        differentiate(E, E.right, V);
+        MergeConst(E);
+         if(!E.containsVariable(V)){
+             variableCountMap.remove(V.toLowerCase());
+         }else {
+             searchPutVariableNode(E, variableCountMap);
+         }
     }
 
+    /**
+     * 求导函数的第二种实现
+     *
+     * @param E e
+     * @param V v
+     */
+    @Deprecated
     public static void Diff2(ExpressionTree E, String V) {
         //        首先进行输入判断
         if (E == null || V == null || V.isEmpty()) {
@@ -241,8 +226,30 @@ public class ExpressionUtil {
             return;
         }
         MergeConst(E);
+        isDifferentiable(E, V);
         differentiate(E, V);
         MergeConst(E);
+    }
+
+    /**
+     * 判断表达式是否对V可导的功能方法
+     *
+     * @param E e
+     * @param V v
+     * @return boolean
+     */
+    public static void isDifferentiable(Expression E, String V) {
+//        递归遍历
+        if (E == null || V == null || V.isEmpty()) {
+            return;
+        }
+        isDifferentiable(E.getLeft(), V);
+        isDifferentiable(E.getRight(), V);
+//        检查当前节点的操作符为"^"时，检查整棵右子树中是否存在变量V
+        if (E.getOp().equals("^") && E.getRight().containsVariable(V)) {
+            throw new IllegalArgumentException("The expression is not differentiable");
+        }
+
     }
 
     /**
@@ -269,7 +276,7 @@ public class ExpressionUtil {
             if (E.left.op.equals("#")) {
 //                为常量
                 E.left.value = 0.0;
-            } else if (Character.isAlphabetic(E.left.op.charAt(0)) && !E.left.op.equals(V)) {
+            } else if (Character.isAlphabetic(E.left.op.charAt(0)) && !E.left.op.equalsIgnoreCase(V)) {
 //                为非求导变量
                 E.left.value = 0.0;
                 E.left.op = "#";
@@ -279,7 +286,7 @@ public class ExpressionUtil {
             if (E.right.op.equals("#")) {
 //                为常量
                 E.right.value = 0.0;
-            } else if (Character.isAlphabetic(E.right.op.charAt(0)) && !E.right.op.equals(V)) {
+            } else if (Character.isAlphabetic(E.right.op.charAt(0)) && !E.right.op.equalsIgnoreCase(V)) {
 //                为非求导变量
                 E.right.value = 0.0;
                 E.right.op = "#";
@@ -288,8 +295,8 @@ public class ExpressionUtil {
             return true;
         }
         if (E.op.equals("*")) {
-            if (Character.isAlphabetic(E.left.op.charAt(0)) && !E.left.op.equals(V)
-                    && Character.isAlphabetic(E.right.op.charAt(0)) && !E.right.op.equals(V)) {
+            if (Character.isAlphabetic(E.left.op.charAt(0)) && !E.left.op.equalsIgnoreCase(V)
+                    && Character.isAlphabetic(E.right.op.charAt(0)) && !E.right.op.equalsIgnoreCase(V)) {
 //                左右子树均为非求导变量
                 variableCountMap.remove(E.left.op);
                 variableCountMap.remove(E.right.op);
@@ -315,7 +322,7 @@ public class ExpressionUtil {
             return false;
         }
 //        对于表达式树本身只有一个变量，即fatherExpression的操作符为变量名，且左右子树为空的情况进行特判
-        if (fatherExpression.op.equals(V.toLowerCase()) && fatherExpression.left == null && fatherExpression.right == null && E.equals(fatherExpression)) {
+        if (fatherExpression.op.equalsIgnoreCase(V) && fatherExpression.left == null && fatherExpression.right == null && E.equals(fatherExpression)) {
             fatherExpression.op = CONSTANT_DEFAULT_OPERATOR;
             fatherExpression.value = 1.0;
             return true;
@@ -328,7 +335,7 @@ public class ExpressionUtil {
         } else {
             differentiateVariable(E, E.right, V);
         }
-        if (E.op.equals(V.toLowerCase())) {
+        if (E.op.equalsIgnoreCase(V)) {
             switch (fatherExpression.op) {
                 case "+":
                 case "-":
@@ -346,10 +353,12 @@ public class ExpressionUtil {
                     fatherExpression.right = temp;
 //                    原来的指数为现在父表达式的左子树的值
                     Double index = fatherExpression.left.value;
-//                    将原来的需要求导的变量表达式，即父表达式的右子树E，替换为求导后的表达式树
+//                    将原来的需要求导的变量表达式，即现在父表达式的右子树E，替换为求导后的表达式树
                     E.op = "^";
                     E.left = new Expression(V, E.value);
-                    E.right = new Expression(CONSTANT_DEFAULT_OPERATOR, index - 1);
+                    E.right = new Expression("-", OPERATOR_DEFAULT_VALUE);
+                    E.right.left = new Expression(CONSTANT_DEFAULT_OPERATOR, index);
+                    E.right.right = new Expression(CONSTANT_DEFAULT_OPERATOR, POWER_FUNCTION_DIFF_VALUE);
                     return true;
                 default:
                     break;
@@ -359,6 +368,15 @@ public class ExpressionUtil {
 
     }
 
+
+    /**
+     * 求导函数的第二种实现的内部方法
+     *
+     * @param E e
+     * @param V v
+     * @return {@link Expression}
+     */
+    @Deprecated
     public static Expression differentiate(Expression E, String V) {
         if (E == null) {
             return null;
@@ -366,7 +384,7 @@ public class ExpressionUtil {
         V = V.toLowerCase();
 //        递归遍历左右子树
 //        表达式只有一个变量，且变量为求导变量的情况
-        if (E.op.toLowerCase().equals(V) && E.left == null && E.right == null) {
+        if (E.op.equalsIgnoreCase(V) && E.left == null && E.right == null) {
             E.op = CONSTANT_DEFAULT_OPERATOR;
             E.value = 1.0;
             return E;
@@ -446,7 +464,7 @@ public class ExpressionUtil {
         }
         if (Character.isAlphabetic(expression.getOp().charAt(0))
                 && expression.getOp().length() == 1) {
-            variableCountMap.put(expression.getOp(), expression);
+            variableCountMap.put(expression.getOp().toLowerCase(), expression);
         }
         searchPutVariableNode(expression.left, variableCountMap);
         searchPutVariableNode(expression.right, variableCountMap);
@@ -487,32 +505,39 @@ public class ExpressionUtil {
         }
     }
 
-    public static String testWriteExpr(ExpressionTree E) {
+    /**
+     * GUI程序中使用的输出表达式的方法的外部接口
+     *
+     * @param E e
+     * @return {@link String}
+     */
+    public static String guiWriteExpr(ExpressionTree E) {
         StringBuilder stringBuilder = new StringBuilder();
-        testWriteExpression(E, stringBuilder);
+        guiWriteExpression(E, stringBuilder);
         return stringBuilder.toString();
     }
 
-    private static void testWriteExpression(Expression E, StringBuilder stringBuilder) {
+    /**
+     * GUI程序中用带括弧的中缀表示式输出表达式E的内部功能方法
+     *
+     * @param E             e
+     * @param stringBuilder 字符串生成器
+     */
+    private static void guiWriteExpression(Expression E, StringBuilder stringBuilder) {
         if (E != null) {
             if (E.op.equals("#")) {
                 // 常量
-//                System.out.print(E.value);
-                stringBuilder.append(E.value);
+                stringBuilder.append(E.value.intValue());
             } else if (Character.isAlphabetic(E.op.charAt(0))
                     && E.op.length() == 1) {
                 // 变量
-//                System.out.print(E.op);
                 stringBuilder.append(E.op);
             } else {
                 // 复合表达式
-//                System.out.print("(");
                 stringBuilder.append("(");
-                testWriteExpression(E.left, stringBuilder);
-//                System.out.print(" " + E.op + " ");
+                guiWriteExpression(E.left, stringBuilder);
                 stringBuilder.append(" ").append(E.op).append(" ");
-                testWriteExpression(E.right, stringBuilder);
-//                System.out.print(")");
+                guiWriteExpression(E.right, stringBuilder);
                 stringBuilder.append(")");
             }
         }
@@ -641,7 +666,6 @@ public class ExpressionUtil {
 
     /**
      * 实现对变量V的赋值（V = c）
-     * TODO: 异常情况可用异常处理机制处理
      *
      * @param V 变量
      * @param c 将要赋给变量的值
@@ -664,7 +688,6 @@ public class ExpressionUtil {
 
     /**
      * 实现对变量V的赋值（V = c）
-     * TODO: 异常情况可用异常处理机制处理
      *
      * @param V 变量
      * @param c 将要赋给变量的值
@@ -684,9 +707,9 @@ public class ExpressionUtil {
         }
         return false;
     }
+
     /**
      * 实现对变量V的赋值（V = c）
-     * TODO: 异常情况可用异常处理机制处理
      *
      * @param V 变量
      * @param c 将要赋给变量的值
@@ -710,7 +733,7 @@ public class ExpressionUtil {
     /**
      * 在表达式中添加三角函数等初等函数的操作。
      * 实现原理为在对变量进行赋值时，可以选择将变量设置为一个三角函数，且函数的输入值就就为用户设置的变量的值。
-     * TODO: 需要增加限制禁止变量的输入
+     *
      *
      * @param trigFunction 三角函数
      * @param inputString  输入字符串
@@ -737,26 +760,8 @@ public class ExpressionUtil {
         Expression expression = E.getVariableCountMap().get(V.toLowerCase());
         expression.setValue(value);
 //        将变量的左子树替换为操作符为三角函数名的Expression对象，右子树为inputString的Expression对象
-//        searchReplaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
         replaceTargetNode(trigFunction, newTree, E, V.toLowerCase());
         return true;
-//        MyHashMap<String, Double> variableCountMap = E.getVariableCountMap();
-//        if (!variableCountMap.containsKey(V.toLowerCase())) {
-//            System.out.println("Invalid variable");
-//            return false;
-//        }
-////        从哈希表移除原来的变量
-//        variableCountMap.remove(V.toLowerCase());
-////        当前变量的操作符变成三角函数名+变量名，下挂表达式
-//        Expression newExpression = new Expression();
-//        newExpression.setOp(trigFunction + V.toLowerCase());
-////        读取三角函数的子树
-//        ReadTrigExpr(newExpression, inputString);
-////        在原表达式中搜索并替换原来的变量
-//        searchReplaceTargetNode(newExpression, E, V.toLowerCase());
-////        添加新的，当前变量下挂表达式的值添加到哈希表中
-//        variableCountMap.put(trigFunction + V.toLowerCase(), evaluatePrefixExpression(inputString));
-//        return true;
     }
 
 

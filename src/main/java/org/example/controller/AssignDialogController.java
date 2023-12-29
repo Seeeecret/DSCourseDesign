@@ -1,4 +1,4 @@
-package org.example;
+package org.example.controller;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
@@ -7,6 +7,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.example.ExpressionGUI;
 import org.example.collections.MyHashMap;
 import org.example.exceptions.VariableInTrigFucException;
 import org.example.pojo.Expression;

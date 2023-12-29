@@ -1,10 +1,13 @@
 package org.example.utils;
 
+import org.example.collections.MyHashMap;
 import org.junit.Before;
 import org.junit.Test;
 
 import org.example.pojo.Expression;
 import org.example.pojo.ExpressionTree;
+
+import java.util.Iterator;
 
 public class ExpressionUtilTest {
     ExpressionTree E1;
@@ -218,6 +221,17 @@ public class ExpressionUtilTest {
 //        ExpressionUtil.printExpressionTree(E7, 0);
         System.out.println();
 
+    }
+    @Test
+    public void testMyHashMap(){
+        MyHashMap<String, Integer> myHashMap = new MyHashMap<>();
+        myHashMap.put("a",1);
+        myHashMap.put("b",2);
+        myHashMap.put("c",3);
+        myHashMap.put("d",4);
+        myHashMap.forEach((k,v)->{
+            System.out.println(k+" "+v);
+        });
     }
 
 }

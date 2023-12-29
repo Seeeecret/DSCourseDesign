@@ -43,6 +43,16 @@ public class AssignDialogController {
     }
 
     @FXML
+    private void onChangeComboBox() {
+        String trigMode = trigModeComboBox.getValue();
+        if ("disabled".equals(trigMode) || trigMode == null) {
+            valueField.setPromptText("Enter a number.");
+        } else {
+            valueField.setPromptText("Enter a prefix expression");
+        }
+    }
+
+    @FXML
     private void onSaveButtonClick() {
         try {
             String variable = variableField.getText();

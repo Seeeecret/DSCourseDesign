@@ -48,7 +48,7 @@
                                         <Font name="Arial" size="18.0" />
                                     </font>
                                 </Label>
-                                <TextField fx:id="valueField" promptText="Enter your number">
+                                <TextField fx:id="valueField" promptText="Enter a number">
                                     <font>
                                         <Font size="20.0" />
                                     </font>
@@ -68,7 +68,7 @@
                                         <Font name="Arial" size="18.0" />
                                     </font>
                                 </Label>
-                                <ComboBox fx:id="trigModeComboBox" prefHeight="36.0" prefWidth="180.0" promptText="disabled" visibleRowCount="5">
+                                <ComboBox onAction="#onChangeComboBox" fx:id="trigModeComboBox" prefHeight="36.0" prefWidth="180.0" promptText="disabled" visibleRowCount="5">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="disabled" />

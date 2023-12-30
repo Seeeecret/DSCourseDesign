@@ -45,12 +45,6 @@ public class ExpressionTree extends Expression {
             return null;
         }
         MyHashMap<String, Expression> variableCountMap = new MyHashMap<>();
-//        char[] charArray = input.toLowerCase().toCharArray();
-//        for (char c : charArray) {
-//            if (Character.isAlphabetic(c) && !variableCountMap.containsKey(Character.toString(c))) {
-//                variableCountMap.put(Character.toString(c), new Expression(c,VARIABLE_DEFAULT_VALUE,null,null));
-//            }
-//        }
         return new ExpressionTree(E, variableCountMap);
     }
 

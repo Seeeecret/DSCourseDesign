@@ -1,6 +1,7 @@
 package org.example.utils;
 
 import org.example.collections.MyHashMap;
+import org.example.collections.MyLinkedList;
 import org.example.collections.MyStack;
 import org.example.exceptions.VariableInTrigFucException;
 import org.example.pojo.Expression;
@@ -9,7 +10,6 @@ import org.example.collections.MutableInteger;
 
 import java.util.LinkedList;
 import java.util.Queue;
-import java.util.Scanner;
 
 import static org.example.utils.Consts.*;
 
@@ -17,14 +17,14 @@ import static org.example.utils.Consts.*;
  *
  */
 public class ExpressionUtil {
-//    TODO:注意必须要用一个变量接住ReadExpr的返回值，会无法正常读取
 
-    /**
+/*    *//**
      * 以字符序列的形式输入语法正确的前缀表示式并构造表达式E，对外暴露的接口
+     * 注意必须要用一个变量接住ReadExpr的返回值，会无法正常读取
      *
      * @param E 表达式
      * @return {@link ExpressionTree}
-     */
+     *//*
     public static ExpressionTree ReadExpr(Expression E) {
         Scanner scanner = new Scanner(System.in);
         MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
@@ -39,9 +39,15 @@ public class ExpressionUtil {
         ReadExpression(expressionTree, input, index);
         searchPutVariableNode(expressionTree, expressionTree.getVariableCountMap());
         return expressionTree;
-    }
-
-    public static ExpressionTree testReadExpr(Expression E, String inputString) {
+    }*/
+    /**
+     * 以字符序列的形式输入语法正确的前缀表示式并构造表达式E，对外暴露的接口
+     * 注意必须要用一个变量接住ReadExpr的返回值，会无法正常读取
+     *
+     * @param E 表达式
+     * @return {@link ExpressionTree}
+     */
+    public static ExpressionTree ReadExpr(Expression E, String inputString) {
         MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
         if (inputString.isEmpty()) {
             System.out.println("Invalid input");
@@ -54,6 +60,13 @@ public class ExpressionUtil {
         return expressionTree;
     }
 
+    /**
+     * 构造基于变量的三角函数表达式子树
+     *
+     * @param E           e
+     * @param inputString 输入字符串
+     * @return {@link ExpressionTree}
+     */
     public static ExpressionTree trigReadExpr(Expression E, String inputString) {
         MutableInteger index = new MutableInteger(-1); // 用于在字符序列中移动的索引
         if (inputString.isEmpty()) {
@@ -199,11 +212,19 @@ public class ExpressionUtil {
         differentiateConstant(E, V, variableCountMap);
         differentiateVariable(E, E, V);
         MergeConst(E);
-         if(!E.containsVariable(V)){
-             variableCountMap.remove(V.toLowerCase());
-         }else {
-             searchPutVariableNode(E, variableCountMap);
-         }
+//        获取表达式树中的变量名,存储在MyLinkedList中
+        MyLinkedList<String> variableList = new MyLinkedList<>();
+        variableCountMap.forEach((key, value) -> {
+            variableList.add(key);
+        });
+        for (String variable : variableList) {
+            if (!E.containsVariable(variable)) {
+                variableCountMap.remove(variable.toLowerCase());
+            } else {
+                searchPutVariableNode(E, variableCountMap);
+            }
+        }
+
     }
 
     /**
@@ -249,7 +270,6 @@ public class ExpressionUtil {
         if (E.getOp().equals("^") && E.getRight().containsVariable(V)) {
             throw new IllegalArgumentException("The expression is not differentiable");
         }
-
     }
 
     /**
@@ -310,7 +330,7 @@ public class ExpressionUtil {
     }
 
     /**
-     * 对表达式中的偏导变量进行求导的功能方法
+     * 对表达式中的偏导变量进行求导的功能方法,于Diff()中调用
      *
      * @param fatherExpression 父亲表情
      * @param E                e
@@ -327,7 +347,6 @@ public class ExpressionUtil {
             fatherExpression.value = 1.0;
             return true;
         }
-
 //        如果当前表达式的操作符为变量名，即变量名与输入的变量名相同，则对当前表达式进行求导
 //        后期会保证求导变量的父节点的右子节点只有常数，所以当左子节点为变量，父子节点为"^"时，便不再需要遍历右子树
         if (differentiateVariable(E, E.left, V)) {
@@ -365,7 +384,6 @@ public class ExpressionUtil {
             }
         }
         return false;
-
     }
 
 
@@ -453,7 +471,7 @@ public class ExpressionUtil {
     }
 
     /**
-     * 从表达式树中搜索变量节点，将其存入哈希表中
+     * 从表达式树中搜索变量节点，将其存入这颗树对应的哈希表中
      *
      * @param expression       表达式
      * @param variableCountMap 哈希表
@@ -553,20 +571,32 @@ public class ExpressionUtil {
         return c == '+' || c == '-' || c == '*' || c == '/' || c == '^';
     }
 
+    /**
+     * 判断是否是可以进行相邻运算符节点的特殊情况进行合并的运算符
+     *
+     * @param c c
+     * @return boolean
+     */
     private static boolean isMergeOperator(char c) {
         return c == '+' || c == '-' || c == '*';
     }
 
+    /**
+     * 合并表达式,针对表达式树中的出现的相邻运算符节点的特殊情况进行合并
+     *
+     * @param E e
+     * @return boolean
+     */
     private static boolean MergeExpression(Expression E) {
         if (E.left == null || E.right == null) {
             return false;
         }
-        String ans = E.containsConstantsSon();
-        if (null != ans) {
+        String constantSonPosition = E.containsConstantsSon();
+        if (null != constantSonPosition) {
             String ERight = E.right.containsConstantsSon();
             String ELeft = E.left.containsConstantsSon();
 //            表达式E的左子树有常数，右子树的左子树有常数
-            if ("left".equals(ans) && "left".equals(ERight)) {
+            if ("left".equals(constantSonPosition) && "left".equals(ERight)) {
 //                表达式E的计算符号,表达式E的右子树的计算符号
                 String EOp = E.op;
                 String ERightOp = E.right.op;
@@ -589,7 +619,7 @@ public class ExpressionUtil {
                     return true;
                 }
                 return true;
-            } else if ("left".equals(ans) && "right".equals(ERight)) {
+            } else if ("left".equals(constantSonPosition) && "right".equals(ERight)) {
 //                表达式E的计算符号,表达式的左子树的计算符号
                 String EOp = E.op;
                 String ERightOp = E.right.op;
@@ -610,7 +640,7 @@ public class ExpressionUtil {
                     E.right = E.right.left;
                     return true;
                 }
-            } else if ("right".equals(ans) && "left".equals(ELeft)) {
+            } else if ("right".equals(constantSonPosition) && "left".equals(ELeft)) {
                 String EOp = E.op;
                 String ELeftOp = E.left.op;
                 if (EOp.equals(ELeftOp)) {
@@ -632,9 +662,8 @@ public class ExpressionUtil {
                             break;
                     }
                     return true;
-
                 }
-            } else if ("right".equals(ans) && "right".equals(ELeft)) {
+            } else if ("right".equals(constantSonPosition) && "right".equals(ELeft)) {
                 String EOp = E.op;
                 String ELeftOp = E.left.op;
                 if (EOp.equals(ELeftOp)) {
@@ -656,10 +685,7 @@ public class ExpressionUtil {
                     }
                     return true;
                 }
-
             }
-
-
         }
         return false;
     }
@@ -677,28 +703,6 @@ public class ExpressionUtil {
         MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
         if (variableCountMap.containsKey(Character.toString(V).toLowerCase())) {
             Expression expression = variableCountMap.get(Character.toString(V).toLowerCase());
-            expression.setValue((double) c);
-//            空置左右子树，以抹除可能存在的三角函数子树
-            expression.left = null;
-            expression.right = null;
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * 实现对变量V的赋值（V = c）
-     *
-     * @param V 变量
-     * @param c 将要赋给变量的值
-     */
-    public static boolean Assign(String V, int c, ExpressionTree E) {
-        if (E == null) {
-            return false;
-        }
-        MyHashMap<String, Expression> variableCountMap = E.getVariableCountMap();
-        if (variableCountMap.containsKey(V.toLowerCase())) {
-            Expression expression = variableCountMap.get(V.toLowerCase());
             expression.setValue((double) c);
 //            空置左右子树，以抹除可能存在的三角函数子树
             expression.left = null;
@@ -733,7 +737,6 @@ public class ExpressionUtil {
     /**
      * 在表达式中添加三角函数等初等函数的操作。
      * 实现原理为在对变量进行赋值时，可以选择将变量设置为一个三角函数，且函数的输入值就就为用户设置的变量的值。
-     *
      *
      * @param trigFunction 三角函数
      * @param inputString  输入字符串
@@ -862,12 +865,6 @@ public class ExpressionUtil {
         }
     }
 
-    public static boolean isTrigFuc(String trigFuc) {
-        if ("sin".equals(trigFuc) || "cos".equals(trigFuc) || "tan".equals(trigFuc)) {
-
-        }
-        return true;
-    }
 
     /**
      * 复合两个表达式，构建一个新表达式
@@ -910,6 +907,12 @@ public class ExpressionUtil {
     }
 
 
+    /**
+     * 合并常量的功能方法的外部接口，先检查是否有特殊化简情况，再进行常量合并操作
+     *
+     * @param E e
+     * @return {@link ExpressionTree}
+     */
     public static ExpressionTree MergeConst(ExpressionTree E) {
         if (E == null) {
             return null;
@@ -933,7 +936,6 @@ public class ExpressionUtil {
                         E = new ExpressionTree(E.left, E.getVariableCountMap());
                     } else if (E.left.op.equals("#") && E.left.value == 0) {
 //                            头结点的左子树为常数且值为0
-//                            TODO:该情况待处理
                     }
                     break;
                 case '*':
@@ -970,8 +972,7 @@ public class ExpressionUtil {
     }
 
     /**
-     * 常数合并操作MergeConst(E) –– 合并表达式E中所有常数运算。
-     * 例如，对表达式E=(2+3-a)*(b+3*4)进行合并常数的操作后，求得E=(5-a)*(b+12)。
+     * 常数合并操作MergeConst(E) –– 合并表达式E中所有常见常数运算。
      *
      * @param E e
      */
@@ -1001,8 +1002,7 @@ public class ExpressionUtil {
             }
 //            如果当前节点的运算符和左或右子节点中的运算符相同且为("*""-""+""/""^")中的一种，同时当前节点和其运算符相同的子节点的子节点中有一个为常数节点
             if (isMergeOperator(E.op.charAt(0)) && MergeExpression(E)) {
-                System.out.println("深层合并成功");
-            }
+;            }
             if (E.left != null && E.right != null) {
                 switch (E.op.charAt(0)) {
                     case '+':
@@ -1038,9 +1038,8 @@ public class ExpressionUtil {
                             }
 
                         } else if ("#".equals(E.left.op) && E.left.value == 0) {
-//                            当前节点为"-"，左节点为常数且值为0
-//                           TODO:该情况待处理
-
+//                            当前节点为"-"，左节点为常数且值为0,不做处理
+//                           ;
                         }
                         break;
                     case '*':
@@ -1137,6 +1136,12 @@ public class ExpressionUtil {
         }
     }
 
+    /**
+     * 求字符串形式的前缀表达式的值并返回
+     *
+     * @param prefixExpression 前缀表达式
+     * @return double
+     */
     public static double evaluatePrefixExpression(String prefixExpression) {
         if (prefixExpression == null || prefixExpression.isEmpty()) {
             throw new IllegalArgumentException("Input expression is null or empty.");
@@ -1183,6 +1188,12 @@ public class ExpressionUtil {
         return operandStack.pop();
     }
 
+    /**
+     * 判断字符串中是否为前缀表达式
+     *
+     * @param prefixExpression 前缀表达式
+     * @return boolean
+     */
     public static boolean isPrefixExpression(String prefixExpression) {
 
         MyStack<Double> operandStack = null;
@@ -1234,7 +1245,7 @@ public class ExpressionUtil {
         return true;
     }
 
-
+    @Deprecated
     public static void printExpressionLevelOrder(Expression root) {
         if (root == null) {
             System.out.println("Expression is empty.");

@@ -7,8 +7,6 @@ import org.junit.Test;
 import org.example.pojo.Expression;
 import org.example.pojo.ExpressionTree;
 
-import java.util.Iterator;
-
 public class ExpressionUtilTest {
     ExpressionTree E1;
     ExpressionTree E2;
@@ -25,21 +23,21 @@ public class ExpressionUtilTest {
     @Before
     public void testReadExpr() {
         String inputString1 = "+++*3^x3*2^x2x6";
-        E1 = ExpressionUtil.testReadExpr(new Expression(), inputString1);
+        E1 = ExpressionUtil.ReadExpr(new Expression(), inputString1);
         String inputString2 = "++*15^x2*8x";
-        E2 = ExpressionUtil.testReadExpr(new Expression(), inputString2);
+        E2 = ExpressionUtil.ReadExpr(new Expression(), inputString2);
         String inputString3 = "+a*bc";
-        E3 = ExpressionUtil.testReadExpr(new Expression(), inputString3);
+        E3 = ExpressionUtil.ReadExpr(new Expression(), inputString3);
         String inputString4 = "-91";
-        E4 = ExpressionUtil.testReadExpr(new Expression(), inputString4);
+        E4 = ExpressionUtil.ReadExpr(new Expression(), inputString4);
         String inputString5 = "a";
-        E5 = ExpressionUtil.testReadExpr(new Expression(), inputString5);
+        E5 = ExpressionUtil.ReadExpr(new Expression(), inputString5);
         String inputString6 = "-1";
-        E6 = ExpressionUtil.testReadExpr(new Expression(), inputString6);
+        E6 = ExpressionUtil.ReadExpr(new Expression(), inputString6);
         String inputString7 = "+^x31";
-        E7 = ExpressionUtil.testReadExpr(new Expression(), inputString7);
+        E7 = ExpressionUtil.ReadExpr(new Expression(), inputString7);
         String inputString8 = "+*3*3^x21";
-        E8 = ExpressionUtil.testReadExpr(new Expression(), inputString8);
+        E8 = ExpressionUtil.ReadExpr(new Expression(), inputString8);
 
     }
 

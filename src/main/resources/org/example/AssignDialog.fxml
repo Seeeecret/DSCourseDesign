@@ -6,6 +6,7 @@
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.example.controller.AssignDialogController">
     <children>
         <VBox fx:id="root" alignment="CENTER" layoutY="-14.0" prefHeight="400.0" prefWidth="600.0" spacing="10" styleClass="container" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1">
@@ -28,7 +29,7 @@
                                         <Font name="Arial" size="18.0" />
                                     </font>
                                 </Label>
-                                <TextField fx:id="variableField" promptText="Enter a variable">
+                                <TextField fx:id="variableField" prefHeight="41.0" prefWidth="294.0" promptText="Enter a variable">
                                     <font>
                                         <Font size="20.0" />
                                     </font>
@@ -43,12 +44,25 @@
                         <Region HBox.hgrow="ALWAYS" />
                         <VBox spacing="0">
                             <children>
-                                <Label alignment="CENTER_RIGHT" text="Value:">
-                                    <font>
-                                        <Font name="Arial" size="18.0" />
-                                    </font>
-                                </Label>
-                                <TextField fx:id="valueField" promptText="Enter a number">
+                                <HBox spacing="10">
+                                   <children>
+                                       <Label fx:id="valueFieldLabel" alignment="CENTER_RIGHT" text="Value:">
+                                           <font>
+                                               <Font name="Arial" size="18.0" />
+                                           </font>
+                                       </Label>
+                                       <Label fx:id="hintLabel" opacity="0.0" text="Attention:Variable is banned" textFill="red">
+                                           <font>
+                                               <Font name="Arial" size="15.0" />
+                                           </font>
+                                 <HBox.margin>
+                                    <Insets top="2.0" />
+                                 </HBox.margin>
+                                       </Label>
+                                   </children>
+                                </HBox>
+
+                                <TextField fx:id="valueField" prefHeight="41.0" prefWidth="291.0" promptText="Enter a number">
                                     <font>
                                         <Font size="20.0" />
                                     </font>
@@ -68,7 +82,7 @@
                                         <Font name="Arial" size="18.0" />
                                     </font>
                                 </Label>
-                                <ComboBox onAction="#onChangeComboBox" fx:id="trigModeComboBox" prefHeight="36.0" prefWidth="180.0" promptText="disabled" visibleRowCount="5">
+                                <ComboBox fx:id="trigModeComboBox" onAction="#onChangeComboBox" prefHeight="36.0" prefWidth="185.0" promptText="disabled" visibleRowCount="5">
                                     <items>
                                         <FXCollections fx:factory="observableArrayList">
                                             <String fx:value="disabled" />
@@ -89,7 +103,7 @@
                                 </ComboBox>
                             </children>
                         </VBox>
-                        <Region prefHeight="60.0" prefWidth="222.0" HBox.hgrow="ALWAYS" />
+                        <Region prefHeight="60.0" prefWidth="243.0" HBox.hgrow="ALWAYS" />
                     </children>
                 </HBox>
                 <Button onAction="#onSaveButtonClick" prefHeight="41.0" prefWidth="78.0" text="Save">

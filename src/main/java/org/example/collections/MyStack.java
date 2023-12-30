@@ -2,6 +2,7 @@ package org.example.collections;
 
 public class MyStack<T> {
     private Object[] array;
+//    记录当前栈顶位置
     private int size;
     private static final int DEFAULT_CAPACITY = 16;
 
@@ -20,6 +21,7 @@ public class MyStack<T> {
             throw new IllegalStateException("Stack is empty.");
         }
         T element = (T) array[--size];
+//        主动置为null，方便垃圾收集器回收
         array[size] = null;
         return element;
     }

@@ -51,7 +51,7 @@ public class InputDialogController {
             ExpressionGUI.showWarningAlert("Please enter a correct prefix expression.");
             return;
         }
-        ExpressionTree expressionTree = ExpressionUtil.testReadExpr(new Expression(),inputText);
+        ExpressionTree expressionTree = ExpressionUtil.ReadExpr(new Expression(),inputText);
         expressionGUI.setExpressionTree(expressionTree);
         TextArea outputTextArea = expressionGUI.getOutputTextArea();
         outputTextArea.appendText("Input from dialog: " + inputText + "\n");

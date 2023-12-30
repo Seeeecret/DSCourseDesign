@@ -1,11 +1,8 @@
 package org.example.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.*;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import org.example.ExpressionGUI;
 import org.example.collections.MyHashMap;
@@ -16,6 +13,10 @@ import org.example.utils.ExpressionUtil;
 
 public class AssignDialogController {
 
+    @FXML
+    public Label valueFieldLabel;
+    @FXML
+    public Label hintLabel;
     @FXML
     private TextField variableField;
 
@@ -47,8 +48,12 @@ public class AssignDialogController {
         String trigMode = trigModeComboBox.getValue();
         if ("disabled".equals(trigMode) || trigMode == null) {
             valueField.setPromptText("Enter a number.");
+            valueFieldLabel.setText("Value");
+            hintLabel.setOpacity(0);
         } else {
             valueField.setPromptText("Enter a prefix expression");
+            valueFieldLabel.setText("Expression:");
+            hintLabel.setOpacity(1);
         }
     }
 
@@ -82,7 +87,7 @@ public class AssignDialogController {
                 return;
             } else if ((trigMode != null && !trigMode.equals("disabled")) && !ExpressionUtil.isPrefixExpression(inputString)) {
 //                判断三角函数输入模式下, 输入是否为前缀表达式
-                showWarningAlert("Please enter a correct prefixExpression as trigonometric function argument\n.");
+                showWarningAlert("Please enter a correct prefixExpression as trigonometric function argument.");
                 return;
             }
             MyHashMap<String, Expression> countMap = expressionGUI.getExpressionTree().getVariableCountMap();

@@ -1,19 +1,60 @@
 package org.example.collections;
 
 
+import java.util.Iterator;
 
-// 定义一个链表类，包含头节点和一些基本操作
-public class MyLinkedList<T> {
+/**
+ * 自己实现的一个链表类，包含头节点和一些基本操作
+ *
+ */
+public class MyLinkedList<T> implements Iterable<T>{
     Node<T> head; // 头节点
     int size; // 链表的大小
 
     // 构造方法，初始化头节点和大小
-    MyLinkedList() {
+    public MyLinkedList() {
         this.head = null;
         this.size = 0;
     }
-// 定义一个节点类，包含数据和下一个节点的引用
 
+    /**
+     * 实现迭代器接口
+     *
+     * @return {@link Iterator}<{@link T}>
+     */
+    @Override
+    public Iterator<T> iterator() {
+        return new LinkedListIterator();
+    }
+
+    /**
+     * 内部类实现迭代器
+     *
+     **/
+    private class LinkedListIterator implements Iterator<T> {
+        private Node<T> current = head;
+
+        @Override
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        @Override
+        public T next() {
+            if (!hasNext()) {
+                throw new IllegalStateException("No more elements in the list");
+            }
+            T data = current.data;
+            current = current.next;
+            return data;
+        }
+    }
+
+
+    /**
+     * 定义一个节点类，包含数据和下一个节点的引用
+     *
+     */
     private static class Node<T> {
         T data; // 数据域
         Node<T> next; // 指针域
@@ -24,8 +65,13 @@ public class MyLinkedList<T> {
             this.next = null;
         }
     }
-    // 在链表的末尾添加一个新的节点
-    void add(T data) {
+
+    /**
+     * 在链表的末尾添加一个新的节点
+     *
+     * @param data 数据
+     */
+    public void add(T data) {
         // 创建一个新的节点
         Node<T> newNode = new Node<>(data);
         // 如果链表为空，直接把新节点设为头节点
@@ -44,8 +90,13 @@ public class MyLinkedList<T> {
         size++;
     }
 
-    // 在链表的指定位置插入一个新的节点
-    void add(int index, T data) {
+    /**
+     * 在链表的指定位置插入一个新的节点
+     *
+     * @param index 指数
+     * @param data  数据
+     */
+    public void add(int index, T data) {
         // 检查索引是否有效
         if (index < 0 || index > size) {
             System.out.println("Invalid index");
@@ -71,8 +122,12 @@ public class MyLinkedList<T> {
         size++;
     }
 
-    // 从链表中删除一个指定的节点
-    void remove(T data) {
+    /**
+     * 从链表中删除一个指定的节点
+     *
+     * @param data 数据
+     */
+    public void remove(T data) {
         // 如果链表为空，直接返回
         if (head == null) {
             System.out.println("List is empty");
@@ -103,26 +158,42 @@ public class MyLinkedList<T> {
         }
     }
 
-    // 清空链表
-    void clear() {
+    /**
+     * 清空链表
+     */
+    public void clear() {
         // 把头节点设为null，就相当于清空了链表
         head = null;
         // 链表的大小设为0
         size = 0;
     }
 
-    // 判断链表是否为空
-    boolean isEmpty() {
+    /**
+     * 判断链表是否为空
+     *
+     * @return boolean
+     */
+    public boolean isEmpty() {
         // 如果头节点为null，就说明链表为空
         return head == null;
     }
 
-    // 返回链表的大小
-    int size() {
+    /**
+     * 返回链表的大小
+     *
+     * @return int
+     */
+    public int size() {
         return size;
     }
 
-    // 重写toString方法，用来打印链表的内容
+    /**
+     *
+     * 重写toString方法，用来打印链表的内容
+     *
+     * @return {@link String}
+     */
+    @Override
     public String toString() {
         // 创建一个字符串缓冲区，用来存储链表的内容
         StringBuilder sb = new StringBuilder();

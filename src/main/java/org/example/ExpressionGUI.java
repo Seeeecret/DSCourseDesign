@@ -68,10 +68,6 @@ public class ExpressionGUI extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-//        FXMLLoader loader = new FXMLLoader(getClass().getResource("ExpressionGUI.fxml"));
-//        loader.setController(this);
-//          这段代码有误,loader.load()返回的是一个Parent对象，是fxml文件中定义的页面的最外层对象,此时是AnchorPane不是VBox
-//        VBox root = loader.load();
         Scene scene = new Scene(loadFXML("ExpressionGUI"), 825, 400);
 
         primaryStage.setTitle("Expression System GUI");
@@ -93,7 +89,6 @@ public class ExpressionGUI extends Application {
         outputTextArea.clear();
     }
 
-//+^x3-9*9X
     @FXML
     private void onReadButtonClick() throws IOException {
         try {
@@ -175,32 +170,12 @@ public class ExpressionGUI extends Application {
     }
 
     @FXML
-    private void onMergeConstButtonClick() {
+    private void
+    onMergeConstButtonClick() {
         expressionTree = ExpressionUtil.MergeConst(expressionTree);
         outputTextArea.appendText("Constants merged successfully:");
     }
 
-    @FXML
-    private void onOpenInputDialogButtonClick() {
-        try {
-//            加载InputDialog FXML文件
-            FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("InputDialog.fxml"));
-            AnchorPane load = loader.load();
-//            创建一个新的Stage用于输入对话框
-            Stage inputDialogStage = new Stage();
-            inputDialogStage.initModality(Modality.APPLICATION_MODAL);
-            inputDialogStage.setTitle("Input Dialog");
-//            设置加载的FXML的InputDialogController
-            InputDialogController inputDialogController = loader.getController();
-            inputDialogController.setStage(inputDialogStage);
-//            设置inputDialogController的expressionGUI
-            Scene inputDialogScene = new Scene(load);
-            inputDialogStage.setScene(inputDialogScene);
-            inputDialogStage.showAndWait();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     public void onAssignButtonClick() {
@@ -225,39 +200,6 @@ public class ExpressionGUI extends Application {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Deprecated
-    private String openNewWindowsGetInput() throws IOException {
-        FXMLLoader loader = new FXMLLoader(ExpressionGUI.class.getResource("InputDialog.fxml"));
-        AnchorPane anchorPane = loader.load();
-        AtomicReference<String> inputText = new AtomicReference<>("");
-        // Create a new stage for the input dialog
-        Stage inputDialogStage = new Stage();
-        inputDialogStage.initModality(Modality.APPLICATION_MODAL);
-        inputDialogStage.setTitle("Input Dialog");
-
-        // Set the InputDialogController for the loaded FXML
-        InputDialogController inputDialogController = loader.getController();
-        inputDialogController.setStage(inputDialogStage);
-        inputDialogController.setExpressionGUI(this);
-
-        // Set the scene and show the input dialog
-        Scene inputDialogScene = new Scene(anchorPane);
-        inputDialogStage.setOnCloseRequest(event -> {
-            inputText.set("close");
-        });
-        // Get the input text
-        inputDialogStage.setScene(inputDialogScene);
-
-        inputDialogStage.showAndWait();
-
-        // Get the input text from InputDialogController
-        if (!inputText.get().equals("close")) {
-            inputText.set(inputDialogController.getInputText());
-        }
-        return inputText.get();
-
     }
 
     public static void showSuccessAlert(String message) {

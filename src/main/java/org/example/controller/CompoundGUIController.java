@@ -58,7 +58,7 @@ public class CompoundGUIController {
             return;
         }
 
-        ExpressionTree compoundExprTree = ExpressionUtil.testReadExpr(new ExpressionTree(), compoundExprText);
+        ExpressionTree compoundExprTree = ExpressionUtil.ReadExpr(new ExpressionTree(), compoundExprText);
         ExpressionTree GUIExprTree = expressionGUI.getExpressionTree();
         expressionGUI.setExpressionTree(ExpressionUtil.CompoundExpr(operator, compoundExprTree, GUIExprTree));
         ExpressionGUI.showSuccessAlert("Compound expression successfully.");
